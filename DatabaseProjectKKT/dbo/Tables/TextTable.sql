@@ -1,0 +1,9 @@
+CREATE TABLE [dbo].[TextTable] (
+    [RID]  BIGINT         IDENTITY (1, 1) NOT NULL,
+    [Text] NVARCHAR (MAX) NOT NULL,
+    CONSTRAINT [PK_textTable] PRIMARY KEY CLUSTERED ([RID] ASC)
+);
+
+
+GO
+

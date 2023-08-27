@@ -1,0 +1,9 @@
+CREATE TABLE [dbo].[Adds] (
+    [RID]  INT            IDENTITY (1, 1) NOT NULL,
+    [Adds] NVARCHAR (MAX) NOT NULL,
+    CONSTRAINT [PK_adds] PRIMARY KEY CLUSTERED ([RID] ASC)
+);
+
+
+GO
+
