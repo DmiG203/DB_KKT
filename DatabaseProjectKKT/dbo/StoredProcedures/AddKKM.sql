@@ -1,40 +1,34 @@
 
 
 CREATE procedure [dbo].[AddKKM] (
-	   @KkmID int output
-	  ,@LocKkmId int output
-	  ,@CompID int output
-	  ,@Action nvarchar(MAX) output
-	  ,@snKKM nvarchar(MAX)
-	  ,@modelKKM nvarchar(MAX)
-	  ,@Source nvarchar(MAX)
-	  ,@CompName nvarchar(MAX)
-	  ,@OP int
-	  ,@comPort int = null
-	  ,@comBaudRate int = null
-	  ,@ShtrihDrvVer nvarchar(MAX) = null
-	  ,@AtolDrvVer nvarchar(MAX) = null
-	  ,@KKMSoftVer nvarchar(max) = null
-/*	  ,@OSName nvarchar(max) = null
-      ,@OSVer nvarchar(max) = null
-      ,@OSDateInstall datetime = null
-      ,@Brand nvarchar(max) = null
-      ,@Model nvarchar(max) = null
-      ,@sn nvarchar(max) = null
-*/	  ,@MAC char(12) = null
-	  ,@RNDIS bit = 0
-	  ,@IpAddress char(15) = null
-	  ,@IpPort int = null
-	  ,@LoaderVersion int = null
+	   @snKKM			nvarchar(MAX)
+	  ,@modelKKM		nvarchar(MAX)
+	  ,@Source			nvarchar(MAX)
+	  ,@CompName		nvarchar(MAX)
+	  ,@OP				int
+	  ,@comPort			int				= null
+	  ,@comBaudRate		int				= null
+	  ,@ShtrihDrvVer	nvarchar(MAX)	= null
+	  ,@AtolDrvVer		nvarchar(MAX)	= null
+	  ,@KKMSoftVer		nvarchar(max)	= null
+	  ,@MAC				char(12)		= null
+	  ,@RNDIS			bit				= 0
+	  ,@IpAddress		char(15)		= null
+	  ,@IpPort			int				= null
+	  ,@LoaderVersion	int				= null
+	  ,@KkmID			int				output
+	  ,@LocKkmId		int				output
+	  ,@CompID			int				output
+	  ,@Action			nvarchar(MAX)	output
 	  )
 AS
 Begin
-	Declare  @ModelID int		--ID Модели ККМ
-			,@OrgId int			--ID организации места установки
-			,@WorkMode int		--Режим работы ККМ
-			,@KkmIdOld int		--ИД старой ККМ
-			,@FnId int			--ИД ФН (для переброса со сторой ККМ)
-			,@SourceID bigint   --ID текста
+	Declare  @ModelID	int		--ID Модели ККМ
+			,@OrgId		int		--ID организации места установки
+			,@WorkMode	int		--Режим работы ККМ
+			,@KkmIdOld	int		--ИД старой ККМ
+			,@FnId		int		--ИД ФН (для переброса со сторой ККМ)
+			,@SourceID	bigint  --ID текста
 
 	--чистим некоторые переменные
 	If @ShtrihDrvVer	= ''	Set @ShtrihDrvVer = null
@@ -43,15 +37,13 @@ Begin
 	If @comBaudRate		= 2400	Set @comBaudRate = null
 	Set @Action			= '' 
 
-	--переопределяем некоторые значения
---	If @Brand = 'N/A' and @Model = 'PS-3315' Set @Brand = 'POSIFLEX'
 
 	--получаем ID места установки и выходим, если нет такого ОП в базе
 	Set @OrgId = (SELECT TOP(1) org.RID FROM Org WHERE org.NumOP = @OP)
 	If @OrgId is null 
 		BEGIN
-			SET @Action = ISNULL(@Action,'') + 'ОП ' + CAST(@OP as nvarchar) + ' нет в БД. Сначала добавьте ОП --- 48 '
-			RETURN 1
+			SET @Action = ISNULL(@Action,'') + 'ОП ' + CAST(@OP as nvarchar) + ' нет в БД. Сначала добавьте ОП '
+			RETURN -1
 		End;
 	
 	--проверяем наличие Модели, и выходим, если нет такой модели в базе
@@ -59,7 +51,7 @@ Begin
 	If @ModelID is null 
 		BEGIN
 			SET @Action = ISNULL(@Action,'') + 'Модель ' + @modelKKM + ' не найдена в БД. Сначала добавьте модель ККМ. '
-			RETURN 1
+			RETURN -1
 		End;
 
 	-- Получаем ID текста
@@ -80,16 +72,6 @@ Begin
 			,@ShtrihDrvVer = @ShtrihDrvVer
 			,@AtolDrvVer = @AtolDrvVer
 			,@Action = @Action OUTPUT
-
-	--получаем последнюю запись о месте установки ККМ
-	Set @LocKkmId = (SELECT	MAX(RID) FROM LocKkm WHERE KkmId = @KkmID) --ORDER BY addDate DESC)
-	----если не определены какие либо параметры, получаем их из последнего места установки:
-	-- если у ККМ больше нет подключения по ком, этого не видно в БД. Плохая была идея...
-	--If @LocKkmId is not null
-	--	begin
-	--		If @comPort is null Set @comPort = (SELECT comPort FROM LocKkm WHERE RID = @LocKkmId)
-	--		IF @comBaudRate is null Set @comBaudRate = (SELECT comBaudRate FROM LocKkm WHERE RID = @LocKkmId)
-	--	end;
 
 	--если не находим ККМ
 	If @KkmID is null
@@ -121,14 +103,29 @@ Begin
 			If @FnId is not null 
 				UPDATE fn set kktID = @KkmID WHERE RID = @FnID
 
+			-- если старая ККМ есть в NotUse как действующая, добавляем такую же запись о новой, запись о старой закрываем
+			IF EXISTS (SELECT RID FROM KkmNotUse WHERE KkmId = @KkmIdOld and StopDate IS NULL)
+				BEGIN
+					INSERT INTO KkmNotUse ([KkmId],[Comment],[NotUseType],[AddDate])
+					SELECT @KkmID,'Перенос с удалённой ККМ. ' + [Comment],[NotUseType], GETDATE()
+						FROM KkmNotUse WHERE KkmId = @KkmIdOld
+					UPDATE KkmNotUse SET StopDate = GETDATE() WHERE	KkmID = @KkmIdOld
+				END
 			-- возвращаем комментарий
 			Set @Action = ISNULL(@Action,'') + 'ККМ добавлена. '
 
 		End;
 	Else
 		-- ККМ найдена в БД
-		-- проверяем необходимость обновления места установки (если нет записи или изменилась касса/порт/скорость порта, втавляем новую запись)
 		begin
+			-- Если найденная ККМ удаленная, и есть не удаленная с тем же серийником, далее будет работать с другой
+			If (SELECT Deleted FROM Kkm WHERE RID = @KkmID) = 1 AND EXISTS (SELECT RID FROM Kkm where SN = @snKKM and Deleted = 0)
+				Set @KkmID = (SELECT RID FROM Kkm where SN = @snKKM and Deleted = 0)
+			
+			--получаем последнюю запись о месте установки ККМ
+			Set @LocKkmId = (SELECT	MAX(RID) FROM LocKkm WHERE KkmId = @KkmID) --ORDER BY addDate DESC)
+			
+			-- проверяем необходимость обновления места установки (если нет записи или изменилась касса/порт/скорость порта, втавляем новую запись)
 			-- места установки нет или не совпадает комп, COMпорт или скорость
 			If	@LocKkmId is null 
 				 or			@CompID != ISNULL((SELECT compID FROM LocKkm WHERE RID= @LocKkmId),'')
@@ -158,8 +155,8 @@ Begin
 				end;
 		end;
 
-		--обновляем LocKkmId
-		Set @LocKkmId = (SELECT	TOP(1) LocKkm.RID FROM LocKkm WHERE LocKkm.KkmId = @KkmID ORDER BY LocKkm.addDate DESC);
+	--обновляем LocKkmId
+	Set @LocKkmId = (SELECT	TOP(1) LocKkm.RID FROM LocKkm WHERE LocKkm.KkmId = @KkmID ORDER BY LocKkm.addDate DESC);
 
 	--обновляем данные о ККМ, если необходимо
 	---- Внутренная верия ПО

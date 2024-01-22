@@ -2,8 +2,9 @@
 CREATE VIEW dbo.GetBTCurrentInfo
 AS
 SELECT DISTINCT 
-                         o.NumOP, pci.IP, os.Hostname, bts.CompID, bts.Terminal_number, bts.Serial_number, bts.Terminal_model, bts.Software_versions_UPOS, bts.Contactless, bts.Loading_parameters, btp.PC_PathFolder, btp.PC_Serial_number, 
-                         btp.PC_Model, btp.PC_Software_versions_UPOS, btp.LoadParmEXE, btp.GateDLL, btp.Sb_kernelDLL, det.Detected, btd.DriverVersion, bts.Update_date
+                         o.NumOP, pci.IP, os.Hostname, bts.CompID, bts.Terminal_number, bts.Merchant_number, bts.Serial_number, bts.Terminal_model, bts.Software_versions_UPOS, bts.Contactless, bts.Loading_parameters, 
+                         bts.DateTime_last_operation, btp.PC_PathFolder, btp.PC_Serial_number, btp.PC_Model, btp.PC_Software_versions_UPOS, btp.LoadParmEXE, btp.GateDLL, btp.Sb_kernelDLL, det.Detected, btd.DriverVersion, bts.Add_date, 
+                         bts.Update_date
 FROM            dbo.BT_Software_Info AS bts LEFT OUTER JOIN
                              (SELECT        b.ID, b.CompID, b.TerminalID, b.PC_PathFolder, b.PC_Model, b.PC_Serial_number, b.PC_Software_versions_UPOS, b.LoadParmEXE, b.GateDLL, b.Sb_kernelDLL, b.FullTextFromFile, b.Add_date, 
                                                          b.Update_date
@@ -108,7 +109,7 @@ Begin DesignProperties =
                Right = 256
             End
             DisplayFlags = 280
-            TopColumn = 8
+            TopColumn = 10
          End
          Begin Table = "btp"
             Begin Extent = 
@@ -150,6 +151,16 @@ Begin DesignProperties =
             DisplayFlags = 280
             TopColumn = 0
          End
+         Begin Table = "os"
+            Begin Extent = 
+               Top = 6
+               Left = 981
+               Bottom = 136
+               Right = 1155
+            End
+            DisplayFlags = 280
+            TopColumn = 0
+         End
          Begin Table = "c"
             Begin Extent = 
                Top = 223
@@ -159,17 +170,7 @@ Begin DesignProperties =
             End
             DisplayFlags = 280
             TopColumn = 0
-         End
-         Begin Table = "o"
-            Begin Extent = 
-               Top = 230
-               Left = 770
-               Bottom = 360
-               Right = 944
-            End
-            DisplayFlags = 280
-            TopColumn = 0
-    ', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'GetBTCurrentInfo';
+   ', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'GetBTCurrentInfo';
 
 
 GO
@@ -179,13 +180,13 @@ EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 2, @leve
 
 GO
 
-EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'     End
-         Begin Table = "os"
+EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'      End
+         Begin Table = "o"
             Begin Extent = 
-               Top = 6
-               Left = 981
-               Bottom = 136
-               Right = 1155
+               Top = 230
+               Left = 770
+               Bottom = 360
+               Right = 944
             End
             DisplayFlags = 280
             TopColumn = 0

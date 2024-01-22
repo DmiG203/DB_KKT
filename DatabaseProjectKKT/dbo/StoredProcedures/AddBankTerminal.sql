@@ -7,10 +7,12 @@ CREATE PROCEDURE [dbo].[AddBankTerminal] (
 	 @ReturnID					int OUTPUT 
 	,@PC_ID						int
 	,@TerminalNumber			nvarchar(50)	=null
+	,@MerchantNumber			nvarchar(50)	=null
 	,@LoadingParameters			datetime		=null
 	,@Contactless				nvarchar(50)	=null
 	,@TerminalModel 			nvarchar(50)	=null
 	,@SerialNumber				nvarchar(50)	=null
+	,@DateTimeLastOperation		datetime		=null
 	,@SoftwareVersionsUPS		nvarchar(50)	=null
 	,@PC_PathFolder				nvarchar(MAX)	=null
 	,@PC_Model					nvarchar(50)	=null
@@ -26,12 +28,17 @@ BEGIN
 	DECLARE  @BTS_ID	int;
 	DECLARE  @BTP_ID	int;
 	DECLARE  @BTD_ID	int;
+	DECLARE  @BTS_Me	nvarchar(50);
+	DECLARE	 @BTS_Lo	smalldatetime;
 
 	DECLARE @BTS_Sn nvarchar(50);
 	DECLARE @BTP_Sn nvarchar(50);
 
 	DECLARE  @ID_Status_Current	int;
 	DECLARE  @ID_Status_Moved	int;
+
+	DECLARE @InstallationDate smalldatetime;
+	DECLARE @InstallationDays int;
 
 	IF (@PC_ID IS NOT NULL) AND (@TerminalNumber IS NULL)
 		BEGIN
@@ -71,14 +78,22 @@ BEGIN
 				END;
 		END;
 
+	IF @MerchantNumber IS NOT NULL
+		BEGIN
+			IF LEN(@MerchantNumber) < 10 
+				BEGIN
+					Set @MerchantNumber = NULL;
+				END;
+		END;
+
 	--Проверяем наличие банковского терминала.
 	SET @BTS_ID = (SELECT TOP 1 ID FROM BT_Software_Info WHERE Terminal_number = @TerminalNumber AND CompID = @PC_ID AND StatusID = 1 ORDER BY ID DESC)
 	--Если терминала в БД нет, до добавляем записи.
 	IF @BTS_ID IS NULL
 		BEGIN
 			--Добавляем запись в BT_Software_Info.
-			INSERT INTO BT_Software_Info ( CompID, Terminal_number, Serial_number, Terminal_model, Contactless, Loading_parameters, Software_versions_UPOS, IsDeleted, Add_date, Update_date)
-								  VALUES ( @PC_ID, @TerminalNumber, @SerialNumber, @TerminalModel, @Contactless, @LoadingParameters, @SoftwareVersionsUPS, 0, GETDATE(), GETDATE());
+			INSERT INTO BT_Software_Info ( CompID, Terminal_number, Merchant_number, Serial_number, Terminal_model, Contactless, Loading_parameters, DateTime_last_operation, Software_versions_UPOS, IsDeleted, Add_date, Update_date)
+								  VALUES ( @PC_ID, @TerminalNumber, @MerchantNumber, @SerialNumber, @TerminalModel, @Contactless, @LoadingParameters, @DateTimeLastOperation, @SoftwareVersionsUPS, 0, GETDATE(), GETDATE());
 			--Получаем ID новой записи.
 			SET @BTS_ID = (SELECT TOP 1 ID FROM BT_Software_Info WHERE Terminal_number = @TerminalNumber AND CompID = @PC_ID ORDER BY ID DESC);
 
@@ -102,58 +117,110 @@ BEGIN
 			--Если запись есть, обновляем ее.
 			ELSE
 				BEGIN
-					UPDATE BT_Detect SET Detected = 1, Update_date = GETDATE() WHERE ID = @BTD_ID;
+					UPDATE BT_Detect SET TerminalID = @BTS_ID, Detected = 1, Update_date = GETDATE() WHERE ID = @BTD_ID;
 				END;
 		END;
 	--Если терминал есть в БД.
 	ELSE
 		BEGIN
-			SET @BTP_ID = (SELECT TOP 1 ID FROM BT_Program_Info WHERE CompID = @PC_ID ORDER BY ID DESC);
-			SET @BTS_Sn = (SELECT TOP 1 Serial_number FROM BT_Software_Info WHERE Terminal_number = @TerminalNumber AND CompID = @PC_ID ORDER BY ID DESC);
-			SET @BTP_Sn = (SELECT TOP 1 PC_Serial_number FROM BT_Program_Info WHERE CompID = @PC_ID ORDER BY ID DESC);
+			SET @BTP_ID = (SELECT TOP 1 ID						FROM BT_Program_Info	WHERE CompID = @PC_ID ORDER BY ID DESC);
+			SET @BTS_Sn = (SELECT TOP 1 Serial_number			FROM BT_Software_Info	WHERE Terminal_number = @TerminalNumber AND CompID = @PC_ID ORDER BY ID DESC);
+			SET @BTP_Sn = (SELECT TOP 1 PC_Serial_number		FROM BT_Program_Info	WHERE CompID = @PC_ID ORDER BY ID DESC);
+			SET @BTS_Me = (SELECT TOP 1 Merchant_number			FROM BT_Software_Info	WHERE Terminal_number = @TerminalNumber AND CompID = @PC_ID ORDER BY ID DESC);
+			SET @BTS_Lo = (SELECT TOP 1 DateTime_last_operation	FROM BT_Software_Info	WHERE Terminal_number = @TerminalNumber AND CompID = @PC_ID ORDER BY ID DESC);
 
 			--Проверка на корректность входных и имеющихся данных
 			IF (@TerminalModel IS NOT NULL) AND (@LoadParmEXE IS NOT NULL)
 				BEGIN
 					--Проверяем актуальность завписи в BT_Software_Info.
-					IF EXISTS ( SELECT TOP 1 CompID, Terminal_number, Serial_number, Terminal_model, Contactless, Software_versions_UPOS
+					IF EXISTS ( SELECT TOP 1 CompID, Terminal_number, Merchant_number, Serial_number, Terminal_model, Contactless, Software_versions_UPOS
 								FROM BT_Software_Info
 								WHERE ID = @BTS_ID
 								ORDER BY ID DESC
 								EXCEPT
-								SELECT @PC_ID, @TerminalNumber, @SerialNumber, @TerminalModel, @Contactless, @SoftwareVersionsUPS
+								SELECT @PC_ID, @TerminalNumber, @MerchantNumber, @SerialNumber, @TerminalModel, @Contactless, @SoftwareVersionsUPS
 								)
 						--Если записи не совпадают
 						BEGIN
-							--Если все параметры есть, то добавляем новую запись.
-							IF (@BTS_Sn IS NOT NULL) AND (@SerialNumber IS NOT NULL)
+							--Если SN в бд и входящий не пустые и они не равны, то добавляем новую запись.
+							IF (((@BTS_Sn IS NOT NULL) AND (@SerialNumber IS NOT NULL)) AND (@BTS_Sn <> @SerialNumber))
 								BEGIN
-									INSERT INTO BT_Software_Info ( CompID, Terminal_number, Serial_number, Terminal_model, Contactless, Loading_parameters, Software_versions_UPOS, IsDeleted, Add_date, Update_date)
-												  VALUES ( @PC_ID, @TerminalNumber, @SerialNumber, @TerminalModel, @Contactless, @LoadingParameters, @SoftwareVersionsUPS, 0, GETDATE(), GETDATE());
+									INSERT INTO BT_Software_Info ( CompID, Terminal_number, Merchant_number, Serial_number, Terminal_model, Contactless, Loading_parameters, DateTime_last_operation, Software_versions_UPOS, IsDeleted, Add_date, Update_date)
+												  VALUES ( @PC_ID, @TerminalNumber, @MerchantNumber, @SerialNumber, @TerminalModel, @Contactless, @LoadingParameters, @DateTimeLastOperation, @SoftwareVersionsUPS, 0, GETDATE(), GETDATE());
 									----Получаем ID новой записи.
 									SET @BTS_ID = (SELECT TOP 1 ID FROM BT_Software_Info WHERE Terminal_number = @TerminalNumber AND CompID = @PC_ID ORDER BY ID DESC);
 								END;
+							-- Иначе обновляем информацию в текущей записи.
 							ELSE
 								BEGIN
 									--Если имеющееся значение отсутсвует, то обновляем запись.
 									IF (@BTS_Sn IS NULL) AND (@SerialNumber IS NOT NULL)
 										BEGIN
-											UPDATE BT_Software_Info SET Serial_number = @SerialNumber, Terminal_model = @TerminalModel, Contactless = @Contactless,
-																		Loading_parameters = @LoadingParameters, Software_versions_UPOS = @SoftwareVersionsUPS, Update_date = GETDATE()
-																  WHERE ID = @BTS_ID;
+											UPDATE BT_Software_Info SET Serial_number = @SerialNumber
+																	WHERE ID = @BTS_ID;
 										END;
-									--Если нового значения нет, то обновляем дату старой записи.
-									IF (@SerialNumber IS NOT NULL)
+
+									--Если имеющееся значение отсутсвует, то обновляем запись.
+									IF (@BTS_Me IS NULL) AND (@MerchantNumber IS NOT NULL)
 										BEGIN
-											--Если нового значения нет, то обновляем дату старой.
-											UPDATE BT_Software_Info SET Update_date = GETDATE() WHERE ID = @BTS_ID;
+											UPDATE BT_Software_Info SET Merchant_number = @MerchantNumber
+																	WHERE ID = @BTS_ID;
 										END;
+									
+									-- Обновляем при любом новом значении.
+									IF (@DateTimeLastOperation IS NOT NULL)
+										BEGIN
+											IF (@TerminalNumber IS NOT NULL) AND (@SerialNumber IS NOT NULL)
+												BEGIN
+													-- получаем дату и количество дней с даты установки по сегодняшний день.
+													EXEC [dbo].[GetBTInstallationDate]
+														@ReturnDate		= @InstallationDate OUTPUT,
+														@ReturnDays		= @InstallationDays OUTPUT,
+														@TerminalNumber	= @TerminalNumber,
+														@SerialNumber	= @SerialNumber
+													-- Если количество дней с момента последней операции меньше или равно количеству дней со дня установки терминала, то обновляем запись.
+													IF DATEDIFF(day,@DateTimeLastOperation, GETDATE()) <= @InstallationDays
+														BEGIN
+															UPDATE BT_Software_Info SET DateTime_last_operation = @DateTimeLastOperation
+																					WHERE ID = @BTS_ID;
+														END;
+													ELSE
+														BEGIN
+															UPDATE BT_Software_Info SET DateTime_last_operation = NULL
+																					WHERE ID = @BTS_ID;
+														END;
+												END;
+											ELSE
+												BEGIN
+													UPDATE BT_Software_Info SET DateTime_last_operation = @DateTimeLastOperation
+																			WHERE ID = @BTS_ID;
+												END;
+										END;
+
+									UPDATE BT_Software_Info SET	Terminal_model = @TerminalModel,
+																Contactless = @Contactless,
+																Loading_parameters = @LoadingParameters,
+																Software_versions_UPOS = @SoftwareVersionsUPS,
+																Update_date = GETDATE() 
+															WHERE ID = @BTS_ID;
+
 								END;
 						END;
 					--Если записи совпадают, обновляем запись.
 					ELSE
 						BEGIN
-							UPDATE BT_Software_Info SET Update_date = GETDATE() WHERE ID = @BTS_ID;
+							IF (@DateTimeLastOperation IS NOT NULL)
+								BEGIN
+									UPDATE BT_Software_Info SET DateTime_last_operation = @DateTimeLastOperation,
+																Update_date = GETDATE() 
+															WHERE ID = @BTS_ID;
+								END;
+							ELSE
+								BEGIN
+									UPDATE BT_Software_Info SET Update_date = GETDATE() 
+															WHERE ID = @BTS_ID;
+								END;
+
 						END;
 
 					--Проверяем актуальность завписи в BT_Program_Info.

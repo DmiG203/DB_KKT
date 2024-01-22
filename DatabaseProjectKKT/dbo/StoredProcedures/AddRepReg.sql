@@ -27,6 +27,8 @@ CREATE procedure [dbo].[AddRepReg] (
 	  ,@UnconfirmedDoc int = null
 	  ,@teg1290 int = null
 	  ,@RegCheckID int = null
+	  ,@FirstDocDate date = null
+	  ,@FirstDocNum int = null
 
 	  )
 AS
@@ -83,6 +85,8 @@ Begin
 			,@LastDocNum = @LastDocNum 
 			,@LastDocDate = @LastDocDate 
 			,@UnconfirmedDoc = @UnconfirmedDoc
+			,@FirstDocDate = @FirstDocDate
+			,@FirstDocNum = @FirstDocNum
 
 	-- зачищаем Action, если вернулось 'ФН существует. ' или прибовляем пробел в конце
 	if @ActionFN = 'ФН существует. ' 
