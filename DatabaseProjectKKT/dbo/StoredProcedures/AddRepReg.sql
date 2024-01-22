@@ -3,6 +3,7 @@ CREATE procedure [dbo].[AddRepReg] (
 	   @RepRegID int output
 	  ,@Action nvarchar(MAX) = null output 
 	  ,@FnId int output
+	  ,@AddError bit  = null output
 	  ,@snFn nvarchar(16)
       ,@DateRep datetime = null
       ,@cashier nvarchar(MAX) = null
@@ -13,7 +14,6 @@ CREATE procedure [dbo].[AddRepReg] (
       ,@Comment nvarchar(MAX) = null
 	  ,@RegTypeId int = null
 	  ,@Source nvarchar(MAX)
-	  ,@AddError bit  = null output
 	  ,@WorkMode int = null
 	  ,@WorkModeEx int = null
 	  ,@snKKM nvarchar(MAX) = null
@@ -25,6 +25,8 @@ CREATE procedure [dbo].[AddRepReg] (
 	  ,@LastDocNum int = null
 	  ,@LastDocDate datetime = null
 	  ,@UnconfirmedDoc int = null
+	  ,@teg1290 int = null
+	  ,@RegCheckID int = null
 
 	  )
 AS
@@ -190,6 +192,15 @@ Begin
 								Set @Action = isnull(@Action,'') + 'Обновлёна ссылка ОФД. '
 							End;
 
+					--обновляем, если @RegCheckID не пустой и не совпадает с текущим
+					If @RegCheckID is not null
+							If isnull((Select RegCheckID from RepReg where RID = @RepRegID),'') != @RegCheckID
+								Begin
+									Update RepReg Set RegCheckID = @RegCheckID, [source] = @Source, [UpdateDate] = GetDate() where RID = @RepRegID
+									Set @Update =  1
+									Set @Action = isnull(@Action,'') + 'Обновлёна ссылка ОФД. '
+								End;
+
 					--обновляем, если кассир не пустой и не совпадает с текущим
 					If @cashier is not null
 						If isnull((Select [cashier] from RepReg where RID = @RepRegID),'') != @cashier
@@ -222,9 +233,54 @@ Begin
 							Begin
 								Update RepReg Set [FFD] = @FFD, [source] = @Source, [UpdateDate] = GetDate() where RID = @RepRegID
 								Set @Update =  1
-								Set @Action = isnull(@Action,'') + 'Обновлёна версия FFD. '
+								Set @Action = isnull(@Action,'') + 'Обновлена версия FFD. '
 							End;
 
+					--обновляем, если teg1290 не пустой и не совпадает с текущим
+					If @teg1290 is not null
+						begin
+							If isnull((Select teg1290 from RepReg where RID = @RepRegID),'')  != @teg1290
+								Begin
+									Update RepReg Set teg1290 = @teg1290, [source] = @Source, [UpdateDate] = GetDate() where RID = @RepRegID
+									Set @Update =  1
+									Set @Action = isnull(@Action,'') + 'Обновлены признаки условий применения ККТ (тэг 1209). '
+								End;
+						-- Можно попробовать получить WorkMode и WorkModeEx из teg1290
+						/*
+							0 - не используется (0)
+							1 - ПРИНТЕР В АВТОМАТЕ
+							2 - АС БСО
+							3 - не используется (0)
+							4 - не используется (0)
+							5 - ККТ ДЛЯ ИНТЕРНЕТ
+							6 - ПОДАКЦИЗНЫЕ ТОВАРЫ
+							7 - не используется (0)
+							8 - ТМТ
+							9 - ККТ ДЛЯ УСЛУГ
+							10 - ПРОВЕДЕНИЕ АЗАРТНОЙ ИГРЫ
+							11 - ПРОВЕДЕНИЕ ЛОТЕРЕИ
+							12 - ЛОМБАРД
+							13 - СТРАХОВАНИЕ
+							14 - ККТ С ТОРГ. АВТОМАТОМ
+							15 - ККТ В ОБЩ. ПИТАНИИ
+							16 - ККТ В ОПТ. ТОРГОВЛЕ С ОРГ. И ИП
+							17 - не используется (0)
+							18 - не используется (0)
+							19 - не используется (0)
+							20 - не используется (0)
+							21 - не используется (0)
+							22 - не используется (0)
+							23 - не используется (0)
+							24 - не используется (0)
+							25 - не используется (0)
+							26 - не используется (0)
+							27 - не используется (0)
+							28 - не используется (0)
+							29 - не используется (0)
+							30 - не используется (0)
+							31 - не используется (0)
+						*/
+						End;
 					
 					If @Update = 1
 						Set @Action = 'Отчёт обновлён: (' + isnull(@Action,'') + ') . '
@@ -237,8 +293,8 @@ Begin
 					begin
 						-- добавляем отчет в базу и возвращаем RID записи
 
-						Insert Into RepReg	( DateRep, cashier, addsId, fnID, FPD, FD, Comment, RepTypeID, source, AddDate,   UpdateDate, WorkMode, WorkModeEx, RNM, link, FFD) Values 
-											(@DateRep,@cashier,@addsId,@FnId,@FPD,@FD,@Comment,@RegTypeId,@Source, GETDATE(), GETDATE(), @WorkMode,@WorkModeEx,@RNM,@link,@FFD)
+						Insert Into RepReg	( DateRep, cashier, addsId, fnID, FPD, FD, Comment, RepTypeID, source, AddDate,   UpdateDate, WorkMode, WorkModeEx, teg1290, RNM, link, RegCheckID, FFD) Values 
+											(@DateRep,@cashier,@addsId,@FnId,@FPD,@FD,@Comment,@RegTypeId,@Source, GETDATE(), GETDATE(), @WorkMode,@WorkModeEx,@teg1290,@RNM,@link,@RegCheckID,@FFD)
 						Set @Action = 'Отчёт добавлен. '
 						Set @RepRegID = (Select top(1) rid from RepReg where fnID = @FnId and fd = @FD order by rid desc) 
 					End;
@@ -253,5 +309,11 @@ Begin
 	Set @Action = @Action  +  isnull(@ActionFN,'')
 End
 
+GO
+
+
+GRANT EXECUTE
+    ON OBJECT::[dbo].[AddRepReg] TO [cash]
+    AS [dbo];
 GO
 

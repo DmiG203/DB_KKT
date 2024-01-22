@@ -33,8 +33,8 @@ BEGIN
 	If @CompType = 0 AND @CompName like 'BAR-[0-9][0-9][0-9]' or @CompName like 'CINEMA-[0-9][0-9][0-9]'
 		Set @CompType = 1
 
-	--Кассы
-	If @CompType = 0 AND (@CompName like 'BAR-%[0-9]-%___' OR @CompName like 'CASH-%[0-9]-%___')
+	--Барные Кассы
+	If @CompType = 0 AND @CompName like 'BAR-%[0-9]-%___'
 		Set @CompType = 2
 
 	--Оф станция
@@ -44,10 +44,16 @@ BEGIN
 	--Киоски
 	If @CompType = 0 AND @CompName like 'SELFSRV-%[0-9]-%___' 
 		Set @CompType = 4
-	
+
+	--Билетные Кассы
+	If @CompType = 0 AND @CompName like 'CASH-%[0-9]-%___'
+		Set @CompType = 6
+			
 	--Рабочие станции (под эту маску попадает почти всё, так что в конце)
 	If @CompType = 0 AND @CompName like '%-%___'
 		Set @CompType = 5
+
+
 
 
 	-- @CompName не может быть пустым
@@ -64,8 +70,8 @@ BEGIN
 			-- получаем ID подразделения
 			If @OP is not null
 				begin
-					-- @OpID необходим только если он не записан в карточке компа или компа нет вовсе, поэтому берём первый ID, если таких хзаписей несколько.
-					-- В других случаях необходимо брать OpID из карточки компа. Подрузамевается, что если есть несколько записей с одним NumOp - распределение будет ручным
+					-- @OpID необходим только если он не записан в карточке компа или компа нет вовсе, поэтому берём первый ID, если таких записей несколько.
+					-- В других случаях необходимо брать OpID из карточки компа. Подразумевается, что если есть несколько записей с одним NumOp - распределение будет ручным
 					Set @OpId = (Select MIN(rid) from Org Where Org.NumOP = @OP)
 					If @OpId is null																--не нашли? Выходим
 						begin
@@ -74,11 +80,16 @@ BEGIN
 						end;
 				end;
 
-			-- @OpID необходим только если он не записан в карточке компа или компа нет вовсе, поэтому 
-
 			-- если @ComputerName нет, заводим новый
 			If @CompID is null 
 				begin
+					If @OpId is null
+						Begin
+							-- если компа нет, @OP становится обязательым полем
+							Set @Action = 'Компьютера не существует в БД, ОП не может быть пустым'
+							RETURN 1
+						End
+
 					INSERT INTO Computers([ComputerName],[OrgID],[addDate],[updateDate],[SourceID],[shtrihDrvVer],[atolDrvVer], [ComputerType]) VALUES (@CompName,@OpId,GETDATE(),GETDATE(),@SourceID,@shtrihDrvVer,@atolDrvVer,@CompType)
 					Set @CompID = (Select rid from Computers where ComputerName = @CompName)
 					Set @Action = isnull(@Action,'') + 'Добавлен ' + @CompName + '. '

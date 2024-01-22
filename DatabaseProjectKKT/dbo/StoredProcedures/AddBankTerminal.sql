@@ -72,7 +72,7 @@ BEGIN
 		END;
 
 	--Проверяем наличие банковского терминала.
-	SET @BTS_ID = (SELECT TOP 1 ID FROM BT_Software_Info WHERE Terminal_number = @TerminalNumber AND CompID = @PC_ID ORDER BY ID DESC)
+	SET @BTS_ID = (SELECT TOP 1 ID FROM BT_Software_Info WHERE Terminal_number = @TerminalNumber AND CompID = @PC_ID AND StatusID = 1 ORDER BY ID DESC)
 	--Если терминала в БД нет, до добавляем записи.
 	IF @BTS_ID IS NULL
 		BEGIN
@@ -210,7 +210,7 @@ BEGIN
 			--Если запись есть, то обновляем ее.
 			IF @BTD_ID IS NOT NULL
 				BEGIN
-					UPDATE BT_Detect SET Detected = 1, Update_date = GETDATE() WHERE ID = @BTD_ID;
+					UPDATE BT_Detect SET Detected = 1, TerminalID = @BTS_ID, Update_date = GETDATE() WHERE ID = @BTD_ID;
 				END;
 			--Если записи нет, добавлем ее.
 			ELSE

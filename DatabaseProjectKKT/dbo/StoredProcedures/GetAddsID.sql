@@ -17,3 +17,9 @@ End;
 
 GO
 
+
+GRANT EXECUTE
+    ON OBJECT::[dbo].[GetAddsID] TO [cash]
+    AS [dbo];
+GO
+

@@ -6,7 +6,7 @@
 CREATE PROCEDURE [dbo].[AddInfoCPU]
 (
 	   @CPU_ID		int output	--ответ процедуры
-	  ,@CPU_Name	int output	
+	  ,@CPU_Name	nvarchar(50) output	
 	  )
 AS
 BEGIN

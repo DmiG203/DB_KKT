@@ -1,7 +1,6 @@
-CREATE VIEW dbo.GetPCCurrentInfo
+CREATE VIEW dbo.ViewServersSN
 AS
-SELECT        o.NumOP, pc.IP, pc.MAC, s.Name, os.Hostname, os.OS, os.Arch, os.Version, os.Serial_number, os.Status, os.Install_date, os.lastBootTime, h.CPU1, h.CPU2, h.RAM, h.RAM_total_size, bb.Manufacturer AS bb_Manufacturer, 
-                         bb.Product AS bb_product, bb.Serial_number AS bb_SN, bb.Version AS bb_version, m.Manufacturer, m.Model, m.Bios_SN, m.Update_Date
+SELECT        TOP (100) PERCENT o.NumOP, os.Hostname, m.Manufacturer, m.Model, bb.Product AS bb_product, bb.Serial_number AS Bb_SN, m.Bios_SN, m.Update_Date
 FROM            dbo.PC_Info AS pc LEFT OUTER JOIN
                          dbo.Statuses AS s ON s.ID = pc.StatusID LEFT OUTER JOIN
                              (SELECT        ID, PC_ID, MAC, Hostname, OS, Arch, Version, Status, Serial_number, Install_date, lastBootTime, Add_date, Update_date
@@ -10,12 +9,6 @@ FROM            dbo.PC_Info AS pc LEFT OUTER JOIN
                                                              (SELECT        MAX(ID) AS ID
                                                                FROM            dbo.PC_OS_Info AS PC_OS_Info_1
                                                                GROUP BY PC_ID))) AS os ON os.PC_ID = pc.ID LEFT OUTER JOIN
-                             (SELECT        ID, PC_ID, CPU1, CPU2, RAM, RAM_total_size, Add_date, Update_date
-                               FROM            dbo.PC_Hardware_Info
-                               WHERE        (ID IN
-                                                             (SELECT        MAX(ID) AS Expr1
-                                                               FROM            dbo.PC_Hardware_Info AS PC_Hardware_Info_1
-                                                               GROUP BY PC_ID))) AS h ON h.PC_ID = pc.ID LEFT OUTER JOIN
                              (SELECT        ID, PC_ID, Manufacturer, Product, Serial_number, Version, Add_date, Update_date
                                FROM            dbo.PC_Baseboard_Info
                                WHERE        (ID IN
@@ -30,54 +23,11 @@ FROM            dbo.PC_Info AS pc LEFT OUTER JOIN
                                                                GROUP BY PC_ID))) AS m ON m.PC_ID = pc.ID INNER JOIN
                          dbo.Computers AS c ON c.RID = pc.CompID INNER JOIN
                          dbo.Org AS o ON o.RID = c.OrgID
-WHERE        (s.ID = 1)
-
+WHERE        (s.ID = 1) AND (c.ComputerType = 1)
+ORDER BY o.NumOP
 GO
 
-EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'         Begin Table = "m"
-            Begin Extent = 
-               Top = 102
-               Left = 250
-               Bottom = 232
-               Right = 424
-            End
-            DisplayFlags = 280
-            TopColumn = 3
-         End
-      End
-   End
-   Begin SQLPane = 
-   End
-   Begin DataPane = 
-      Begin ParameterDefaults = ""
-      End
-   End
-   Begin CriteriaPane = 
-      Begin ColumnWidths = 11
-         Column = 1440
-         Alias = 900
-         Table = 1170
-         Output = 720
-         Append = 1400
-         NewValue = 1170
-         SortType = 1350
-         SortOrder = 1410
-         GroupBy = 1350
-         Filter = 1350
-         Or = 1350
-         Or = 1350
-         Or = 1350
-      End
-   End
-End
-', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'GetPCCurrentInfo';
-
-
-GO
-
-EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 2, @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'GetPCCurrentInfo';
-
-
+EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 2, @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'ViewServersSN';
 GO
 
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane1', @value = N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]
@@ -163,66 +113,93 @@ Begin DesignProperties =
          End
          Begin Table = "s"
             Begin Extent = 
-               Top = 6
-               Left = 250
-               Bottom = 102
-               Right = 424
+               Top = 174
+               Left = 253
+               Bottom = 270
+               Right = 427
             End
             DisplayFlags = 280
             TopColumn = 0
          End
          Begin Table = "os"
             Begin Extent = 
-               Top = 6
-               Left = 462
-               Bottom = 136
-               Right = 636
-            End
-            DisplayFlags = 280
-            TopColumn = 0
-         End
-         Begin Table = "h"
-            Begin Extent = 
-               Top = 6
-               Left = 1095
-               Bottom = 136
-               Right = 1269
+               Top = 167
+               Left = 473
+               Bottom = 297
+               Right = 647
             End
             DisplayFlags = 280
             TopColumn = 0
          End
          Begin Table = "bb"
             Begin Extent = 
-               Top = 6
-               Left = 1307
-               Bottom = 136
-               Right = 1481
+               Top = 128
+               Left = 668
+               Bottom = 258
+               Right = 842
+            End
+            DisplayFlags = 280
+            TopColumn = 0
+         End
+         Begin Table = "m"
+            Begin Extent = 
+               Top = 0
+               Left = 842
+               Bottom = 130
+               Right = 1016
             End
             DisplayFlags = 280
             TopColumn = 0
          End
          Begin Table = "c"
             Begin Extent = 
-               Top = 6
-               Left = 670
-               Bottom = 136
-               Right = 845
+               Top = 63
+               Left = 1099
+               Bottom = 193
+               Right = 1274
             End
             DisplayFlags = 280
             TopColumn = 0
          End
          Begin Table = "o"
             Begin Extent = 
-               Top = 6
-               Left = 883
-               Bottom = 136
-               Right = 1057
+               Top = 175
+               Left = 895
+               Bottom = 305
+               Right = 1069
             End
             DisplayFlags = 280
             TopColumn = 0
-         End
-', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'GetPCCurrentInfo';
+      ', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'ViewServersSN';
+GO
 
-
+EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'   End
+      End
+   End
+   Begin SQLPane = 
+   End
+   Begin DataPane = 
+      Begin ParameterDefaults = ""
+      End
+   End
+   Begin CriteriaPane = 
+      Begin ColumnWidths = 11
+         Column = 1440
+         Alias = 900
+         Table = 1170
+         Output = 720
+         Append = 1400
+         NewValue = 1170
+         SortType = 1350
+         SortOrder = 1410
+         GroupBy = 1350
+         Filter = 1350
+         Or = 1350
+         Or = 1350
+         Or = 1350
+      End
+   End
+End
+', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'ViewServersSN';
 GO
 

@@ -52,3 +52,9 @@ End;
 
 GO
 
+
+GRANT EXECUTE
+    ON OBJECT::[dbo].[AddLogEvent] TO [cash]
+    AS [dbo];
+GO
+

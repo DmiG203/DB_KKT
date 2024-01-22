@@ -5,7 +5,8 @@
 -- =============================================
 CREATE PROCEDURE [dbo].[AddPC]
 (
-	 @ReturnID			int				OUTPUT	--ответ процедуры
+	 @ReturnID			int				OUTPUT	
+	,@PC_ID				int				OUTPUT	--ID записи в таблице
 	,@OP_Number			int				= null	--Номер ОП
 	,@MACAddress		nvarchar(50)	= null
 	,@IP_Address		nvarchar(50)	= null
@@ -23,6 +24,7 @@ CREATE PROCEDURE [dbo].[AddPC]
 	,@BB_Version		nvarchar(50)	= null
 	,@Manufacturer		nvarchar(50)	= null
 	,@Model				nvarchar(50)	= null
+	,@BiosSN			nvarchar(50)	= null
 	,@CPU1				nvarchar(50)	= null
 	,@CPU2				nvarchar(50)	= null
 	,@RAM				nvarchar(50)	= null
@@ -33,7 +35,7 @@ BEGIN
 	DECLARE @CompID int;	--ID из таблицы Димы
 	DECLARE @Source nvarchar(50);
 	DECLARE @OrgID  int;
-	DECLARE @PC_ID	int;	--ID записи в таблице
+	--DECLARE @PC_ID	int;	--ID записи в таблице
 	DECLARE @OS_ID	int;
 	DECLARE @Hw_ID	int;
 	DECLARE @Bb_ID	int;
@@ -53,9 +55,10 @@ BEGIN
 	--Получаем CompID по hastname.
 	EXEC [dbo].[GetCompID]
 		 @CompID	= @CompID OUTPUT
-		,@Source	= @Source
 		,@CompName	= @Hostname
 		,@OP		= @OP_Number
+		,@Source	= @Source
+
 
 	SET @ReturnID = @CompID;
 	--Если CompID null, выходим.
@@ -225,6 +228,12 @@ BEGIN
 		BEGIN
 			Set @BB_Manufacturer = 'POSIFLEX'
 		END;
+	IF @BB_Product = 'Baytrail' AND @BB_SerialNumber = 'To be filled by O.E.M.' AND @BB_Manufacturer = 'AMI Corporation'
+		BEGIN
+			SET @BB_Manufacturer = 'OKPOS';
+			SET @BB_Product = 'OPTIMUS-J';
+		END;
+
 	--Получаем ID записи.
 	SET @Bb_ID = (SELECT TOP 1 ID FROM PC_Baseboard_Info WHERE PC_ID = @PC_ID ORDER BY ID DESC);
 	--Если записи нет, добавляем ее.
@@ -268,14 +277,29 @@ BEGIN
 	IF @BB_Manufacturer = 'AMI Corporation' AND @BB_Product = 'Aptio CRB' AND @Manufacturer = 'To be filled by O.E.M.' AND @Model = 'To be filled by O.E.M.'
 		BEGIN
 			SET @Manufacturer = 'SEWOO'
+			SET @Model = 'NBP-150';
+		END;
+	IF @Manufacturer = 'To be filled by O.E.M.' AND @Model = 'Baytrail'
+		BEGIN
+			SET @Manufacturer = 'OKPOS';
+			SET @Model = 'OPTIMUS-J';
+		END;
+	IF @BB_Manufacturer = 'INTEL Corporation' AND @BB_Product = 'CRESCENTBAY' AND @BB_SerialNumber = 'To be filled by O.E.M.' AND @BB_Version = 'To be filled by O.E.M.'
+		BEGIN
+			SET @Manufacturer = 'SEWOO';
+			SET @Model = 'NBP-150';
+		END;
+	IF @BB_Product = 'D3034-A1' AND @Model = 'PRIMERGY' AND @Manufacturer = 'FUJITSU'
+		BEGIN
+			SET @Model = 'PRIMERGY RX100 S7'
 		END;
 	--Получаем ID записи.
 	SET @Mf_ID = (SELECT TOP 1 ID FROM PC_Manufacturer_Info WHERE PC_ID = @PC_ID ORDER BY ID DESC);
 	--Если записи нет, добавляем ее.
 	IF @Mf_ID IS NULL
 		BEGIN
-			INSERT INTO PC_Manufacturer_Info ( PC_ID, Manufacturer, Model, Add_date, Update_Date)
-									  VALUES ( @PC_ID, @Manufacturer, @Model, GETDATE(), GETDATE());
+			INSERT INTO PC_Manufacturer_Info ( PC_ID, Manufacturer, Model, Bios_SN, Add_date, Update_Date)
+									  VALUES ( @PC_ID, @Manufacturer, @Model, @BiosSN, GETDATE(), GETDATE());
 			--Получаем ID новой записи.
 			SET @Mf_ID = (SELECT TOP 1 ID FROM PC_Manufacturer_Info WHERE PC_ID = @PC_ID ORDER BY ID DESC);
 		END;
@@ -283,16 +307,16 @@ BEGIN
 	ELSE
 		BEGIN
 			--проверка актуальности.
-			IF EXISTS ( SELECT TOP 1 Manufacturer, Model
+			IF EXISTS ( SELECT TOP 1 Manufacturer, Model, Bios_SN
 						FROM PC_Manufacturer_Info
 						WHERE ID = @Mf_ID AND PC_ID = @PC_ID
 						ORDER BY ID DESC
 						EXCEPT 
-						SELECT @Manufacturer, @Model)
+						SELECT @Manufacturer, @Model, @BiosSN)
 				--если неактуальны, добавляем новую запись.
 				BEGIN
-					INSERT INTO PC_Manufacturer_Info ( PC_ID, Manufacturer, Model, Add_date, Update_Date)
-											  VALUES ( @PC_ID, @Manufacturer, @Model, GETDATE(), GETDATE());
+					INSERT INTO PC_Manufacturer_Info ( PC_ID, Manufacturer, Model, Bios_SN, Add_date, Update_Date)
+											  VALUES ( @PC_ID, @Manufacturer, @Model, @BiosSN, GETDATE(), GETDATE());
 					--Получаем ID новой записи.
 					SET @Mf_ID = (SELECT TOP 1 ID FROM PC_Manufacturer_Info WHERE PC_ID = @PC_ID ORDER BY ID DESC);
 				END;

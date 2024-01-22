@@ -1,24 +1,31 @@
 CREATE VIEW dbo.GetFnList
 AS
-SELECT        dbo.Org.RID AS OrgID, dbo.Org.NumOP, dbo.Computers.rid AS CompID, dbo.Computers.ComputerName, dbo.kkm.rid AS KkmID, dbo.kkm.sn AS KkmSn, dbo.kkm.modelID AS KkmModelID, dbo.kkmModel.Name AS KkmModel, 
-                         dbo.kkm.deleted AS kkmDeleted, dbo.fn.rid AS FnID, dbo.fn.sn AS FnSn, dbo.fnModel.Name AS FnModel, dbo.fn.status, dbo.fn.DateExpired, dbo.RepReg.FFD AS KkmFFD, dbo.fn.LastDocNum, dbo.fn.LastDocDate, 
-                         dbo.RepReg.WorkMode AS WokModeFromRepReg
-FROM            dbo.kkm LEFT OUTER JOIN
-                         dbo.kkmModel ON dbo.kkm.modelID = dbo.kkmModel.rid LEFT OUTER JOIN
-                         dbo.fn ON dbo.kkm.rid = dbo.fn.kktID LEFT OUTER JOIN
-                         dbo.RepReg ON dbo.RepReg.fnID = dbo.fn.rid AND dbo.RepReg.RID =
+SELECT        TOP (100) PERCENT dbo.Org.RID AS OrgID, dbo.Org.NumOP, dbo.Computers.RID AS CompID, dbo.Computers.ComputerName, dbo.Kkm.RID AS KkmID, dbo.Kkm.SN AS KkmSn, dbo.Kkm.ModelID AS KkmModelID, 
+                         dbo.KkmModel.Name AS KkmModel, dbo.Kkm.Deleted AS kkmDeleted, dbo.Fn.RID AS FnID, dbo.Fn.SN AS FnSn, dbo.FnModel.Name AS FnModel, dbo.Fn.Status, dbo.Fn.DateExpired, RepReg_1.FFD AS KkmFFD, 
+                         RepReg_1.WorkMode,
+                             (SELECT        MIN(DateRep) AS Expr1
+                               FROM            dbo.RepReg
+                               WHERE        (RepTypeID = 1) AND (FnID = dbo.Fn.RID)) AS DateStart,
+                             (SELECT        MAX(DateRep) AS Expr1
+                               FROM            dbo.RepReg AS RepReg_2
+                               WHERE        (RepTypeID = 3) AND (FnID = dbo.Fn.RID)) AS DateStop, 0 AS Move
+FROM            dbo.Kkm LEFT OUTER JOIN
+                         dbo.KkmModel ON dbo.Kkm.ModelID = dbo.KkmModel.RID LEFT OUTER JOIN
+                         dbo.Fn ON dbo.Kkm.RID = dbo.Fn.KktID LEFT OUTER JOIN
+                         dbo.RepReg AS RepReg_1 ON RepReg_1.FnID = dbo.Fn.RID AND RepReg_1.RID =
                              (SELECT        TOP (1) RID
                                FROM            dbo.RepReg AS RepReg2
-                               WHERE        (fnID = dbo.fn.rid)
+                               WHERE        (FnID = dbo.Fn.RID)
                                ORDER BY DateRep DESC) LEFT OUTER JOIN
-                         dbo.fnModel ON dbo.fnModel.rid = dbo.fn.modelId LEFT OUTER JOIN
-                         dbo.LocKkm ON dbo.kkm.rid = dbo.LocKkm.KkmId AND
-                             (SELECT        TOP (1) rid
+                         dbo.FnModel ON dbo.FnModel.RID = dbo.Fn.ModelID LEFT OUTER JOIN
+                         dbo.LocKkm ON dbo.Kkm.RID = dbo.LocKkm.KkmID AND dbo.LocKkm.RID =
+                             (SELECT        TOP (1) RID
                                FROM            dbo.LocKkm AS lockkm2
-                               WHERE        (KkmId = dbo.kkm.rid)
-                               ORDER BY addDate DESC) = dbo.LocKkm.rid LEFT OUTER JOIN
-                         dbo.Computers ON dbo.LocKkm.compID = dbo.Computers.rid LEFT OUTER JOIN
+                               WHERE        (KkmID = dbo.Kkm.RID)
+                               ORDER BY AddDate DESC) LEFT OUTER JOIN
+                         dbo.Computers ON dbo.LocKkm.CompID = dbo.Computers.RID LEFT OUTER JOIN
                          dbo.Org ON dbo.Computers.OrgID = dbo.Org.RID
+ORDER BY dbo.Computers.ComputerName, RepReg_1.DateRep
 
 GO
 
@@ -27,14 +34,14 @@ EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 2, @leve
 
 GO
 
-EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'           TopColumn = 0
+EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'            TopColumn = 0
          End
          Begin Table = "Org"
             Begin Extent = 
-               Top = 233
-               Left = 84
-               Bottom = 363
-               Right = 258
+               Top = 82
+               Left = 16
+               Bottom = 212
+               Right = 190
             End
             DisplayFlags = 280
             TopColumn = 0
@@ -45,6 +52,27 @@ EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'          
    End
    Begin DataPane = 
       Begin ParameterDefaults = ""
+      End
+      Begin ColumnWidths = 19
+         Width = 284
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
       End
    End
    Begin CriteriaPane = 
@@ -75,7 +103,7 @@ Begin DesignProperties =
    Begin PaneConfigurations = 
       Begin PaneConfiguration = 0
          NumPanes = 4
-         Configuration = "(H (1[41] 4[23] 2[24] 3) )"
+         Configuration = "(H (1[38] 4[22] 2[29] 3) )"
       End
       Begin PaneConfiguration = 1
          NumPanes = 3
@@ -138,78 +166,78 @@ Begin DesignProperties =
    Begin DiagramPane = 
       Begin Origin = 
          Top = 0
-         Left = 0
+         Left = -127
       End
       Begin Tables = 
-         Begin Table = "kkm"
+         Begin Table = "Kkm"
             Begin Extent = 
-               Top = 32
-               Left = 418
-               Bottom = 162
-               Right = 592
+               Top = 293
+               Left = 259
+               Bottom = 423
+               Right = 433
             End
             DisplayFlags = 280
             TopColumn = 0
          End
-         Begin Table = "kkmModel"
+         Begin Table = "KkmModel"
             Begin Extent = 
-               Top = 34
-               Left = 86
-               Bottom = 147
-               Right = 260
+               Top = 303
+               Left = 14
+               Bottom = 416
+               Right = 188
             End
             DisplayFlags = 280
             TopColumn = 0
          End
-         Begin Table = "fn"
+         Begin Table = "Fn"
             Begin Extent = 
-               Top = 33
-               Left = 929
-               Bottom = 163
-               Right = 1109
+               Top = 447
+               Left = 8
+               Bottom = 577
+               Right = 188
             End
             DisplayFlags = 280
             TopColumn = 0
          End
-         Begin Table = "RepReg"
+         Begin Table = "RepReg_1"
             Begin Extent = 
-               Top = 8
-               Left = 1210
-               Bottom = 138
-               Right = 1384
+               Top = 293
+               Left = 528
+               Bottom = 423
+               Right = 702
             End
             DisplayFlags = 280
             TopColumn = 8
          End
-         Begin Table = "fnModel"
+         Begin Table = "FnModel"
             Begin Extent = 
-               Top = 208
-               Left = 1235
-               Bottom = 338
-               Right = 1409
+               Top = 452
+               Left = 356
+               Bottom = 582
+               Right = 530
             End
             DisplayFlags = 280
             TopColumn = 0
          End
          Begin Table = "LocKkm"
             Begin Extent = 
-               Top = 223
-               Left = 699
-               Bottom = 353
-               Right = 873
+               Top = 52
+               Left = 492
+               Bottom = 182
+               Right = 666
             End
             DisplayFlags = 280
             TopColumn = 0
          End
          Begin Table = "Computers"
             Begin Extent = 
-               Top = 210
-               Left = 414
-               Bottom = 340
-               Right = 589
+               Top = 91
+               Left = 244
+               Bottom = 221
+               Right = 419
             End
             DisplayFlags = 280
- ', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'GetFnList';
+', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'GetFnList';
 
 
 GO

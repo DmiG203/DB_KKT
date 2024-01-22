@@ -1,9 +1,10 @@
 CREATE VIEW dbo.view_external_logs
 AS
-SELECT        ComputerName AS computer_name, CAST(theatre_id AS int) AS theatre_id, Version, work_date, Query_type, Query_Name, COUNT(DISTINCT Date_Created) AS сnt_app_launches, SUM(Normal_Count) AS normal_count, 
-                         SUM(CEE_Count) AS cee_count, SUM(TimeOut_Count) AS timeout_count, SUM(total_query) AS total_query, ROUND(AVG(bad_query_ratio), 4) AS bad_query_ratio, MIN(MinTime) AS min_time, MAX(MaxTime) AS max_time, 
-                         AVG(AvgTime) AS avg_time
-FROM            (SELECT        c.ComputerName, SUBSTRING(c.ComputerName, 8, 3) AS theatre_id, el.Version, CASE WHEN el.Query_Name IN ('GETCODEINFO', 'PASSEVENT', 'GETACCESSPOINTS') 
+SELECT        ComputerName AS computer_name, CAST(theatre_id AS int) AS theatre_id, City, Version, work_date, DAY(work_date) AS day_num, MONTH(work_date) AS month_num, YEAR(work_date) AS year_num, DATEPART(dy, work_date) 
+                         AS day_of_year, DATEPART(dw, work_date) AS day_of_week, DATEPART(wk, work_date) AS week_number, DATEPART(isowk, work_date) AS iso_week_number, Query_type, Query_Name, COUNT(DISTINCT Date_Created) 
+                         AS сnt_app_launches, SUM(Normal_Count) AS normal_count, SUM(CEE_Count) AS cee_count, SUM(TimeOut_Count) AS timeout_count, SUM(total_query) AS total_query, ROUND(AVG(bad_query_ratio), 4) AS bad_query_ratio, 
+                         MIN(MinTime) AS min_time, MAX(MaxTime) AS max_time, AVG(AvgTime) AS avg_time
+FROM            (SELECT        c.ComputerName, SUBSTRING(c.ComputerName, 8, 3) AS theatre_id, ci.City, el.Version, CASE WHEN el.Query_Name IN ('GETCODEINFO', 'PASSEVENT', 'GETACCESSPOINTS') 
                                                     THEN 'SUD' WHEN el.Query_Name IN ('KIOSKGETANNOUNCEMENT', 'KIOSKGETCARDINFO', 'KIOSKGETCURRENCY', 'KIOSKGETLASTPRINTEDTICKETS', 'KIOSKGETRIBBONS', 'KIOSKGETRIBBONVOIDSREASON', 
                                                     'KIOSKGETSETTINGS', 'KIOSKGETUNITS', 'KIOSKGETUSERS', 'KIOSKRECALCPRICE', 'KIOSKSALE', 'KIOSKSETRIBBON', 'KIOSKTRANSACTION') THEN 'KIOSK' WHEN el.Query_Name IN ('GETFORMATS', 
                                                     'GETMOVIES', 'GETSESSIONS', 'GETSESSIONPRICES') THEN 'SESSION_AND_PRICES' WHEN el.Query_Name IN ('RESERVATION', 'RESERVATIONCLEAR', 'SALEAPPROVED', 'SALECANCEL', 'SALEPAYRETURN', 
@@ -13,8 +14,10 @@ FROM            (SELECT        c.ComputerName, SUBSTRING(c.ComputerName, 8, 3) A
                                                     el.Normal_Count + el.CEE_Count + el.TimeOut_Count AS total_query, (CAST(el.CEE_Count AS float) + CAST(el.TimeOut_Count AS float)) / (CAST(el.Normal_Count AS float) + CAST(el.CEE_Count AS float) 
                                                     + CAST(el.TimeOut_Count AS float)) AS bad_query_ratio, el.MinTime, el.MaxTime, el.AvgTime
                           FROM            dbo.Cinema_External_Run_Logs AS el INNER JOIN
-                                                    dbo.Computers AS c ON el.CompID = c.RID) AS inf
-GROUP BY ComputerName, theatre_id, Version, work_date, Query_type, Query_Name
+                                                    dbo.Computers AS c ON el.CompID = c.RID INNER JOIN
+                                                    dbo.Org AS o ON c.OrgID = o.RID INNER JOIN
+                                                    dbo.Org_City AS ci ON o.CityID = ci.RID) AS inf
+GROUP BY ComputerName, theatre_id, City, Version, work_date, Query_type, Query_Name
 
 GO
 
@@ -23,7 +26,7 @@ Begin DesignProperties =
    Begin PaneConfigurations = 
       Begin PaneConfiguration = 0
          NumPanes = 4
-         Configuration = "(H (1[40] 4[20] 2[20] 3) )"
+         Configuration = "(H (1[47] 4[22] 2[24] 3) )"
       End
       Begin PaneConfiguration = 1
          NumPanes = 3
@@ -93,8 +96,8 @@ Begin DesignProperties =
             Begin Extent = 
                Top = 6
                Left = 38
-               Bottom = 341
-               Right = 432
+               Bottom = 136
+               Right = 246
             End
             DisplayFlags = 280
             TopColumn = 0

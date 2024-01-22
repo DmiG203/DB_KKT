@@ -125,3 +125,9 @@ End
 
 GO
 
+
+GRANT EXECUTE
+    ON OBJECT::[dbo].[UpdateRepReg] TO [cash]
+    AS [dbo];
+GO
+

@@ -210,3 +210,9 @@ End;
 
 GO
 
+
+GRANT EXECUTE
+    ON OBJECT::[dbo].[AddKKM] TO [cash]
+    AS [dbo];
+GO
+

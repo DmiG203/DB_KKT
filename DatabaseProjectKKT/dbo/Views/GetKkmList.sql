@@ -1,28 +1,29 @@
 CREATE VIEW dbo.GetKkmList
 AS
-SELECT     dbo.Org.RID AS OrgID, dbo.Org.NumOP, dbo.Computers.rid AS CompID, dbo.Computers.ComputerName, dbo.kkm.rid AS KkmID, dbo.kkm.sn AS KkmSn, dbo.kkm.modelID AS KkmModelID, dbo.kkmModel.Name AS KkmModel, dbo.kkm.deleted AS kkmDeleted, dbo.kkm.SoftVer, 
-                  dbo.kkm.LoaderVersion, dbo.kkm.MAC, dbo.fn.rid AS FnID, dbo.fn.sn AS FnSn, dbo.fn.modelId AS FnModelID, dbo.fnModel.Name AS FnModel, dbo.fn.status, dbo.fn.DateExpired, dbo.kkm.WorkMode, dbo.RepReg.WorkModeEx, dbo.RepReg.FFD AS KkmFFD, dbo.fn.LastDocNum, 
-                  dbo.fn.LastDocDate, dbo.LocKkm.ComPort, dbo.LocKkm.ComBaudRate, dbo.Computers.shtrihDrvVer, dbo.Computers.atolDrvVer, dbo.RepReg.WorkMode AS WokModeFromRepReg, dbo.kkm.RNDIS, dbo.kkm.ipAddress, dbo.kkm.ipPort, dbo.Computers.lastStart
-FROM        dbo.kkm LEFT OUTER JOIN
-                  dbo.kkmModel ON dbo.kkm.modelID = dbo.kkmModel.rid LEFT OUTER JOIN
-                  dbo.fn ON dbo.kkm.rid = dbo.fn.kktID AND dbo.fn.status < 2 LEFT OUTER JOIN
-                  dbo.RepReg ON dbo.RepReg.fnID = dbo.fn.rid AND dbo.RepReg.RID =
-                      (SELECT     TOP (1) RID
-                       FROM        dbo.RepReg AS RepReg2
-                       WHERE     (fnID = dbo.fn.rid)
-                       ORDER BY DateRep DESC) LEFT OUTER JOIN
-                  dbo.fnModel ON dbo.fnModel.rid = dbo.fn.modelId LEFT OUTER JOIN
-                  dbo.LocKkm ON dbo.kkm.rid = dbo.LocKkm.KkmId AND
-                      (SELECT     TOP (1) rid
-                       FROM        dbo.LocKkm AS lockkm2
-                       WHERE     (KkmId = dbo.kkm.rid)
-                       ORDER BY addDate DESC) = dbo.LocKkm.rid LEFT OUTER JOIN
-                  dbo.Computers ON dbo.LocKkm.compID = dbo.Computers.rid LEFT OUTER JOIN
-                  dbo.Org ON dbo.Computers.OrgID = dbo.Org.RID
+SELECT        dbo.Org.RID AS OrgID, dbo.Org.NumOP, dbo.Computers.RID AS CompID, dbo.Computers.ComputerName, dbo.Kkm.RID AS KkmID, dbo.Kkm.SN AS KkmSn, dbo.Kkm.ModelID AS KkmModelID, dbo.KkmModel.Name AS KkmModel, 
+                         dbo.Kkm.Deleted AS kkmDeleted, dbo.Kkm.SoftVer, dbo.Kkm.LoaderVersion, dbo.Kkm.MAC, dbo.Fn.RID AS FnID, dbo.Fn.SN AS FnSn, dbo.Fn.ModelID AS FnModelID, dbo.FnModel.Name AS FnModel, dbo.Fn.Status, 
+                         dbo.Fn.DateExpired, dbo.Kkm.WorkMode, dbo.RepReg.WorkModeEx, dbo.RepReg.FFD AS KkmFFD, dbo.Fn.LastDocNum, dbo.Fn.LastDocDate, dbo.LocKkm.ComPort, dbo.LocKkm.ComBaudRate, dbo.Computers.ShtrihDrvVer, 
+                         dbo.Computers.AtolDrvVer, dbo.RepReg.WorkMode AS WokModeFromRepReg, dbo.Kkm.RNDIS, dbo.Kkm.IpAddress, dbo.Kkm.IpPort, dbo.Computers.LastStart, dbo.Fn.UnconfirmedDoc
+FROM            dbo.Kkm LEFT OUTER JOIN
+                         dbo.KkmModel ON dbo.Kkm.ModelID = dbo.KkmModel.RID LEFT OUTER JOIN
+                         dbo.Fn ON dbo.Kkm.RID = dbo.Fn.KktID AND dbo.Fn.Status < 2 LEFT OUTER JOIN
+                         dbo.RepReg ON dbo.RepReg.FnID = dbo.Fn.RID AND dbo.RepReg.RID =
+                             (SELECT        TOP (1) RID
+                               FROM            dbo.RepReg AS RepReg2
+                               WHERE        (FnID = dbo.Fn.RID)
+                               ORDER BY DateRep DESC) LEFT OUTER JOIN
+                         dbo.FnModel ON dbo.FnModel.RID = dbo.Fn.ModelID LEFT OUTER JOIN
+                         dbo.LocKkm ON dbo.Kkm.RID = dbo.LocKkm.KkmID AND
+                             (SELECT        TOP (1) RID
+                               FROM            dbo.LocKkm AS lockkm2
+                               WHERE        (KkmID = dbo.Kkm.RID)
+                               ORDER BY AddDate DESC) = dbo.LocKkm.RID LEFT OUTER JOIN
+                         dbo.Computers ON dbo.LocKkm.CompID = dbo.Computers.RID LEFT OUTER JOIN
+                         dbo.Org ON dbo.Computers.OrgID = dbo.Org.RID
 
 GO
 
-EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'      TopColumn = 2
+EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'       TopColumn = 2
          End
          Begin Table = "Org"
             Begin Extent = 
@@ -67,16 +68,16 @@ EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'      TopC
    End
    Begin CriteriaPane = 
       Begin ColumnWidths = 11
-         Column = 1908
-         Alias = 2112
-         Table = 1176
+         Column = 1905
+         Alias = 2115
+         Table = 1170
          Output = 720
          Append = 1400
          NewValue = 1170
          SortType = 2100
-         SortOrder = 1836
+         SortOrder = 1830
          GroupBy = 1350
-         Filter = 4416
+         Filter = 4410
          Or = 1350
          Or = 1350
          Or = 1350
@@ -164,35 +165,35 @@ Begin DesignProperties =
          Left = 0
       End
       Begin Tables = 
-         Begin Table = "kkm"
+         Begin Table = "Kkm"
             Begin Extent = 
-               Top = 27
-               Left = 448
-               Bottom = 344
-               Right = 622
-            End
-            DisplayFlags = 280
-            TopColumn = 3
-         End
-         Begin Table = "kkmModel"
-            Begin Extent = 
-               Top = 243
-               Left = 662
-               Bottom = 425
-               Right = 836
+               Top = 49
+               Left = 404
+               Bottom = 179
+               Right = 578
             End
             DisplayFlags = 280
             TopColumn = 0
          End
-         Begin Table = "fn"
+         Begin Table = "KkmModel"
             Begin Extent = 
-               Top = 20
-               Left = 681
-               Bottom = 229
-               Right = 855
+               Top = 220
+               Left = 402
+               Bottom = 333
+               Right = 576
             End
             DisplayFlags = 280
             TopColumn = 0
+         End
+         Begin Table = "Fn"
+            Begin Extent = 
+               Top = 51
+               Left = 637
+               Bottom = 181
+               Right = 817
+            End
+            DisplayFlags = 280
+            TopColumn = 10
          End
          Begin Table = "RepReg"
             Begin Extent = 
@@ -204,15 +205,15 @@ Begin DesignProperties =
             DisplayFlags = 280
             TopColumn = 4
          End
-         Begin Table = "fnModel"
+         Begin Table = "FnModel"
             Begin Extent = 
-               Top = 221
-               Left = 886
-               Bottom = 380
-               Right = 1060
+               Top = 252
+               Left = 850
+               Bottom = 382
+               Right = 1024
             End
             DisplayFlags = 280
-            TopColumn = 1
+            TopColumn = 0
          End
          Begin Table = "LocKkm"
             Begin Extent = 
@@ -232,8 +233,14 @@ Begin DesignProperties =
                Right = 175
             End
             DisplayFlags = 280
-      ', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'GetKkmList';
+     ', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'GetKkmList';
 
 
+GO
+
+
+GRANT SELECT
+    ON OBJECT::[dbo].[GetKkmList] TO [cash]
+    AS [dbo];
 GO
 

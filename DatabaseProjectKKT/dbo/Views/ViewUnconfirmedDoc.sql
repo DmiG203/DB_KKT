@@ -1,18 +1,8 @@
 CREATE VIEW dbo.ViewUnconfirmedDoc
 AS
-SELECT        dbo.Org.NumOP, dbo.Computers.ComputerName, dbo.fn.sn AS FnSn, dbo.kkm.sn AS KkmSn, dbo.kkmModel.Name AS KkmModel, dbo.kkm.WorkMode, dbo.kkm.RNDIS, dbo.fn.UnconfirmedDoc, dbo.fn.LastDocNum, 
-                         dbo.fn.LastDocDate, dbo.LocKkm.ComPort, dbo.LocKkm.ComBaudRate, dbo.fn.UpdateDate, dbo.kkm.ipAddress
-FROM            dbo.kkm LEFT OUTER JOIN
-                         dbo.kkmModel ON dbo.kkm.modelID = dbo.kkmModel.rid LEFT OUTER JOIN
-                         dbo.fn ON dbo.kkm.rid = dbo.fn.kktID AND dbo.fn.status <> 2 AND dbo.fn.status <> 4 LEFT OUTER JOIN
-                         dbo.LocKkm ON dbo.kkm.rid = dbo.LocKkm.KkmId AND
-                             (SELECT        TOP (1) rid
-                               FROM            dbo.LocKkm AS lockkm2
-                               WHERE        (KkmId = dbo.kkm.rid)
-                               ORDER BY addDate DESC) = dbo.LocKkm.rid LEFT OUTER JOIN
-                         dbo.Computers ON dbo.LocKkm.compID = dbo.Computers.rid LEFT OUTER JOIN
-                         dbo.Org ON dbo.Computers.OrgID = dbo.Org.RID
-WHERE        (dbo.fn.UnconfirmedDoc IS NOT NULL) AND (dbo.fn.UnconfirmedDoc > 10)
+SELECT        NumOP, ComputerName, KkmSn, KkmModel, WorkMode, FnSn, UnconfirmedDoc, LastDocDate, ComPort, ComBaudRate, IpAddress, IpPort, RNDIS, LastDocNum, LastStart AS UpdateDate
+FROM            dbo.GetKkmList
+WHERE        (UnconfirmedDoc > 10)
 
 GO
 
@@ -21,7 +11,7 @@ Begin DesignProperties =
    Begin PaneConfigurations = 
       Begin PaneConfiguration = 0
          NumPanes = 4
-         Configuration = "(H (1[45] 4[18] 2[20] 3) )"
+         Configuration = "(H (1[40] 4[20] 2[20] 3) )"
       End
       Begin PaneConfiguration = 1
          NumPanes = 3
@@ -87,65 +77,15 @@ Begin DesignProperties =
          Left = 0
       End
       Begin Tables = 
-         Begin Table = "kkm"
+         Begin Table = "GetKkmList"
             Begin Extent = 
-               Top = 129
-               Left = 233
-               Bottom = 348
-               Right = 407
+               Top = 6
+               Left = 38
+               Bottom = 369
+               Right = 250
             End
             DisplayFlags = 280
-            TopColumn = 4
-         End
-         Begin Table = "kkmModel"
-            Begin Extent = 
-               Top = 136
-               Left = 18
-               Bottom = 249
-               Right = 192
-            End
-            DisplayFlags = 280
-            TopColumn = 0
-         End
-         Begin Table = "fn"
-            Begin Extent = 
-               Top = 15
-               Left = 488
-               Bottom = 145
-               Right = 668
-            End
-            DisplayFlags = 280
-            TopColumn = 10
-         End
-         Begin Table = "LocKkm"
-            Begin Extent = 
-               Top = 176
-               Left = 494
-               Bottom = 409
-               Right = 668
-            End
-            DisplayFlags = 280
-            TopColumn = 4
-         End
-         Begin Table = "Computers"
-            Begin Extent = 
-               Top = 178
-               Left = 686
-               Bottom = 415
-               Right = 861
-            End
-            DisplayFlags = 280
-            TopColumn = 0
-         End
-         Begin Table = "Org"
-            Begin Extent = 
-               Top = 182
-               Left = 897
-               Bottom = 404
-               Right = 1071
-            End
-            DisplayFlags = 280
-            TopColumn = 0
+            TopColumn = 16
          End
       End
    End
@@ -154,21 +94,47 @@ Begin DesignProperties =
    Begin DataPane = 
       Begin ParameterDefaults = ""
       End
+      Begin ColumnWidths = 34
+         Width = 284
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+         Width = 1500
+      End
    End
    Begin CriteriaPane = 
       Begin ColumnWidths = 11
-         Column = 1440
-         Alias = 18', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'ViewUnconfirmedDoc';
-
-
-GO
-
-EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 2, @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'ViewUnconfirmedDoc';
-
-
-GO
-
-EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'00
+         Column = 2910
+         Alias = 900
          Table = 1170
          Output = 720
          Append = 1400
@@ -184,6 +150,11 @@ EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'00
    End
 End
 ', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'ViewUnconfirmedDoc';
+
+
+GO
+
+EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 1, @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'ViewUnconfirmedDoc';
 
 
 GO

@@ -11,9 +11,14 @@ CREATE TABLE [dbo].[PC_Hdd_Info] (
     [Add_date]      SMALLDATETIME  NOT NULL,
     [Update_date]   SMALLDATETIME  NOT NULL,
     CONSTRAINT [PK_PC_Hdd_Info] PRIMARY KEY CLUSTERED ([ID] ASC),
-    CONSTRAINT [FK_PC_Hdd_Info_PC_Info] FOREIGN KEY ([PC_ID]) REFERENCES [dbo].[PC_Info] ([ID])
+    CONSTRAINT [FK_PC_Hdd_Info_PC_Info1] FOREIGN KEY ([PC_ID]) REFERENCES [dbo].[PC_Info] ([ID])
 );
 
 
+GO
+
+
+ALTER TABLE [dbo].[PC_Hdd_Info]
+    ADD CONSTRAINT [FK_PC_Hdd_Info_PC_Info1] FOREIGN KEY ([PC_ID]) REFERENCES [dbo].[PC_Info] ([ID]);
 GO
 

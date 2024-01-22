@@ -96,3 +96,9 @@ END
 
 GO
 
+
+GRANT EXECUTE
+    ON OBJECT::[dbo].[GetKKMSettings] TO [cash]
+    AS [dbo];
+GO
+

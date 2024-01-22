@@ -29,3 +29,9 @@ End
 
 GO
 
+
+GRANT EXECUTE
+    ON OBJECT::[dbo].[GetCashSettings] TO [cash]
+    AS [dbo];
+GO
+
