@@ -70,7 +70,7 @@ Begin
 	-- если отчета о регистрации нет, статус ФН - 0
 	If @FD is null
 		Set @statusFn = 0
---select @FnId,@snFn, @snKKM, @modelKKM, @Source, @FNexpired, @FreeReg, @statusFn, @LastDocNum,  @LastDocDate,  @UnconfirmedDoc
+
 	--Обновляем информацию по ФН 
 	EXEC	 @AddFn = AddFN 
 			 @Action = @ActionFN OUTPUT
@@ -87,6 +87,7 @@ Begin
 			,@UnconfirmedDoc = @UnconfirmedDoc
 			,@FirstDocDate = @FirstDocDate
 			,@FirstDocNum = @FirstDocNum
+			,@RNM = @RNM
 
 	-- зачищаем Action, если вернулось 'ФН существует. ' или прибовляем пробел в конце
 	if @ActionFN = 'ФН существует. ' 
@@ -133,14 +134,6 @@ Begin
 			-- если отчет уже есть и FPD больше 0, смотрим нужно ли обновить
 			If (@RepRegID is not null) and (Cast(@FPD as BigInt) > 0)
 				Begin
-					--обновляем, если различается RNM
-					If @RNM is not null
-						If isnull((Select [RNM] from RepReg where RID = @RepRegID),0) != @RNM
-							Begin
-								Update RepReg Set [RNM] = @RNM, [source] = @Source, [UpdateDate] = GetDate() where RID = @RepRegID
-								Set @Update =  1
-								Set @Action = isnull(@Action,'') + 'Обновлён РНМ.  '								
-							End;	
 					--если WorkMode не передали,подсмотрим его в отчете
 					If @WorkMode is null
 						Set @WorkMode = (select WorkMode from RepReg where RID = @RepRegID)
@@ -297,8 +290,8 @@ Begin
 					begin
 						-- добавляем отчет в базу и возвращаем RID записи
 
-						Insert Into RepReg	( DateRep, cashier, addsId, fnID, FPD, FD, Comment, RepTypeID, source, AddDate,   UpdateDate, WorkMode, WorkModeEx, teg1290, RNM, link, RegCheckID, FFD) Values 
-											(@DateRep,@cashier,@addsId,@FnId,@FPD,@FD,@Comment,@RegTypeId,@Source, GETDATE(), GETDATE(), @WorkMode,@WorkModeEx,@teg1290,@RNM,@link,@RegCheckID,@FFD)
+						Insert Into RepReg	( DateRep, cashier, addsId, fnID, FPD, FD, Comment, RepTypeID, source, AddDate,   UpdateDate, WorkMode, WorkModeEx, teg1290, link, RegCheckID, FFD) Values 
+											(@DateRep,@cashier,@addsId,@FnId,@FPD,@FD,@Comment,@RegTypeId,@Source, GETDATE(), GETDATE(), @WorkMode,@WorkModeEx,@teg1290,@link,@RegCheckID,@FFD)
 						Set @Action = 'Отчёт добавлен. '
 						Set @RepRegID = (Select top(1) rid from RepReg where fnID = @FnId and fd = @FD order by rid desc) 
 					End;

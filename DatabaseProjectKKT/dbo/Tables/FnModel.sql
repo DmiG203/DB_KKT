@@ -1,6 +1,6 @@
 CREATE TABLE [dbo].[FnModel] (
     [RID]        INT            IDENTITY (1, 1) NOT NULL,
-    [Name]       NVARCHAR (MAX) NOT NULL,
+    [Name]       NVARCHAR (MAX) NULL,
     [Mask]       NCHAR (6)      NOT NULL,
     [FFD]        NCHAR (4)      NULL,
     [AddDate]    DATETIME       NULL,

@@ -16,6 +16,7 @@ CREATE procedure [dbo].[AddFn] (
 	  ,@FirstDocDate	date = null
 	  ,@FirstDocNum		int = null
 	  ,@FnDeleted		bit = 0
+	  ,@RNM				nvarchar(16) = null
 	  )
 
 AS
@@ -25,7 +26,6 @@ Begin
 			,@ModelKkmID int
 
 	Set @snFnID = (Select rid from fn where sn = @snFN);
-	Set @ModelID = (Select rid from fnModel where mask = LEFT(@snFN,6));
 	Set @Action = null
 	Set @ModelKkmID = (select rid from kkmModel where kkmModel.Name = @ModelKkm)
 
@@ -38,7 +38,7 @@ Begin
 	If @FNexpired is null 
 		Set @FNexpired = convert(date, '01.01.1970',104)
 
-	-- если модель ККМ не передана, забираем текущую можель данной кассы, только если это не ритейл
+	-- если модель ККМ не передана, забираем текущую модель данной кассы, только если это не ритейл
 	If (@ModelKkm is null)
 		BEGIN
 			Set @ModelKkmID = (select ModelID from kkm where sn = @SnKkm and deleted = 0)
@@ -49,14 +49,17 @@ Begin
 	-- если статус пустой - устанавливаем 0 (новая ФН)
 	If @Status is null Set @Status = 0
 	
-	If @ModelID is null 
-		BEGIN
-			Set @Action = 'Для ФН №' + isnull(@snFN,'NULL') + ' не определена модель. Сначала добавьте модель для ФН';
-			RETURN 1;
-		END;
+	-- по маске определяем модель ФН. Если таковой нет, добавляем маску в модели
+	IF not EXISTS (Select rid from fnModel where mask = LEFT(@snFN,6))
+		Insert into FnModel (Mask) VALUES (LEFT(@snFN,6))
+	
+	Set @ModelID = (Select rid from fnModel where mask = LEFT(@snFN,6));
 
 	-- Получаем @KkmID. Если в этот момент не определён @ModelKkmID, KkmID мы так же не получем и запишем null
 	Set @KkmID =  (Select rid from KKM where sn =  @SnKkm and kkm.modelID = @ModelKkmID);
+	-- Если не определили KkmID, но есть RMN, пробуем получить ККМ через него
+	If @RNM is not null and @KkmID is null
+		SET @KkmID = (Select KkmID from FNSData where RNM = @RNM)
 
 	If @snFnID is null
 		Begin
@@ -66,13 +69,6 @@ Begin
 		End;
 	Else 
 		BEGIN
-			-- смотрим, требуется ли обновление. 
-	
-			/*If (@UnconfirmedDoc is not null) and @UnconfirmedDoc != isnull((select UnconfirmedDoc from fn where rid = @snFnID), -1)
-				begin
-					update fn set UpdateDate = getdate(), UnconfirmedDoc = @UnconfirmedDoc, source = @Source where rid = @snFnID
-					Set @Action = isnull(@Action,'') + 'ФН ' + @snFN + ' обновлено количество неотправленных чеков в ОФД. '
-				end*/
 			-- -- Дата блокировки
 			If @FNexpired != convert(date, '01.01.1970',104) and @FNexpired != isnull((select DateExpired from fn where rid = @snFnID),'') 
 				begin 
