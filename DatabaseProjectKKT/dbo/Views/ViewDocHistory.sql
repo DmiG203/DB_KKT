@@ -1,25 +1,19 @@
-CREATE VIEW dbo.GetCompList
+CREATE VIEW dbo.ViewDocHistory
 AS
 SELECT        dbo.Org.RID AS OrgID, dbo.Org.NumOP, dbo.Computers.RID AS CompID, dbo.Computers.ComputerName, dbo.Kkm.RID AS KkmID, dbo.Kkm.SN AS KkmSn, dbo.Kkm.ModelID AS KkmModelID, dbo.KkmModel.Name AS KkmModel, 
-                         dbo.Kkm.Deleted AS kkmDeleted
+                         dbo.Kkm.Deleted AS kkmDeleted, dbo.Kkm.SoftVer, dbo.Fn.RID AS FnID, dbo.Fn.SN AS FnSn, dbo.Fn.ModelID AS FnModelID, dbo.FnModel.Name AS FnModel, dbo.Kkm.WorkMode, UnDoc.DocDate, UnDoc.DocNum, 
+                         UnDoc.AddDate
 FROM            dbo.Kkm LEFT OUTER JOIN
+                         dbo.KkmModel ON dbo.Kkm.ModelID = dbo.KkmModel.RID LEFT OUTER JOIN
+                         dbo.Fn ON dbo.Kkm.RID = dbo.Fn.KktID AND dbo.Fn.Status < 2 LEFT OUTER JOIN
+                         dbo.FnModel ON dbo.FnModel.RID = dbo.Fn.ModelID LEFT OUTER JOIN
                          dbo.LocKkm ON dbo.Kkm.RID = dbo.LocKkm.KkmID AND
-                             (SELECT        TOP (1) RID
+                             (SELECT        MAX(RID) AS Expr1
                                FROM            dbo.LocKkm AS lockkm2
-                               WHERE        (KkmID = dbo.Kkm.RID)
-                               ORDER BY AddDate DESC) = dbo.LocKkm.RID LEFT OUTER JOIN
+                               WHERE        (KkmID = dbo.Kkm.RID)) = dbo.LocKkm.RID LEFT OUTER JOIN
                          dbo.Computers ON dbo.LocKkm.CompID = dbo.Computers.RID LEFT OUTER JOIN
-                         dbo.Org ON dbo.Computers.OrgID = dbo.Org.RID LEFT OUTER JOIN
-                         dbo.KkmModel ON dbo.Kkm.ModelID = dbo.KkmModel.RID
-
-GO
-
-EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'   End
-   End
-End
-', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'GetCompList';
-
-
+                         dbo.Org ON dbo.Computers.OrgID = dbo.Org.RID INNER JOIN
+                         dbo.FnDocs AS UnDoc ON UnDoc.Type = 1 AND UnDoc.FnID = dbo.Fn.RID
 GO
 
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane1', @value = N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]
@@ -27,7 +21,7 @@ Begin DesignProperties =
    Begin PaneConfigurations = 
       Begin PaneConfiguration = 0
          NumPanes = 4
-         Configuration = "(H (1[54] 4[13] 2[23] 3) )"
+         Configuration = "(H (1[40] 4[20] 2[20] 3) )"
       End
       Begin PaneConfiguration = 1
          NumPanes = 3
@@ -95,50 +89,83 @@ Begin DesignProperties =
       Begin Tables = 
          Begin Table = "Kkm"
             Begin Extent = 
-               Top = 15
-               Left = 213
-               Bottom = 316
-               Right = 387
-            End
-            DisplayFlags = 280
-            TopColumn = 0
-         End
-         Begin Table = "LocKkm"
-            Begin Extent = 
-               Top = 15
-               Left = 432
-               Bottom = 315
-               Right = 606
-            End
-            DisplayFlags = 280
-            TopColumn = 1
-         End
-         Begin Table = "Computers"
-            Begin Extent = 
-               Top = 13
-               Left = 637
-               Bottom = 316
-               Right = 812
-            End
-            DisplayFlags = 280
-            TopColumn = 0
-         End
-         Begin Table = "Org"
-            Begin Extent = 
-               Top = 11
-               Left = 842
-               Bottom = 319
-               Right = 1016
+               Top = 6
+               Left = 38
+               Bottom = 136
+               Right = 212
             End
             DisplayFlags = 280
             TopColumn = 0
          End
          Begin Table = "KkmModel"
             Begin Extent = 
-               Top = 16
-               Left = 9
-               Bottom = 314
-               Right = 183
+               Top = 6
+               Left = 250
+               Bottom = 119
+               Right = 424
+            End
+            DisplayFlags = 280
+            TopColumn = 0
+         End
+         Begin Table = "Fn"
+            Begin Extent = 
+               Top = 120
+               Left = 250
+               Bottom = 250
+               Right = 430
+            End
+            DisplayFlags = 280
+            TopColumn = 0
+         End
+         Begin Table = "FnModel"
+            Begin Extent = 
+               Top = 138
+               Left = 38
+               Bottom = 268
+               Right = 212
+            End
+            DisplayFlags = 280
+            TopColumn = 0
+         End
+         Begin Table = "LocKkm"
+            Begin Extent = 
+               Top = 252
+               Left = 250
+               Bottom = 382
+               Right = 424
+            End
+            DisplayFlags = 280
+            TopColumn = 0
+         End
+         Begin Table = "Computers"
+            Begin Extent = 
+               Top = 270
+               Left = 38
+               Bottom = 400
+               Right = 213
+            End
+            DisplayFlags = 280
+            TopColumn = 0
+         End
+         Begin Table = "Org"
+            Begin Extent = 
+               Top = 384
+               Left = 251
+               Bottom = 514
+               Right = 425
+            End
+            DisplayFlags = 280
+          ', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'ViewDocHistory';
+GO
+
+EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'  TopColumn = 0
+         End
+         Begin Table = "UnDoc"
+            Begin Extent = 
+               Top = 402
+               Left = 38
+               Bottom = 532
+               Right = 218
             End
             DisplayFlags = 280
             TopColumn = 0
@@ -166,13 +193,12 @@ Begin DesignProperties =
          Or = 1350
          Or = 1350
          Or = 1350
-   ', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'GetCompList';
-
-
+      End
+   End
+End
+', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'ViewDocHistory';
 GO
 
-EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 2, @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'GetCompList';
-
-
+EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 2, @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'ViewDocHistory';
 GO
 

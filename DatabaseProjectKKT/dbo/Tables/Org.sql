@@ -24,17 +24,3 @@ EXECUTE sp_addextendedproperty @name = N'MS_Description', @value = N'0 = пре�
 GO
 
 
-ALTER TABLE [dbo].[Org]
-    ADD CONSTRAINT [FK_Org_Org_City] FOREIGN KEY ([CityID]) REFERENCES [dbo].[Org_City] ([RID]);
-GO
-
-
-ALTER TABLE [dbo].[Org]
-    ADD CONSTRAINT [FK_Org_Org_City] FOREIGN KEY ([CityID]) REFERENCES [dbo].[Org_City] ([RID]);
-GO
-
-
-ALTER TABLE [dbo].[Org]
-    ADD CONSTRAINT [FK_Org_Org_City] FOREIGN KEY ([CityID]) REFERENCES [dbo].[Org_City] ([RID]);
-GO
-

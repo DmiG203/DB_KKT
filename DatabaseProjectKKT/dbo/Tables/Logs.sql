@@ -15,3 +15,8 @@ CREATE TABLE [dbo].[Logs] (
 
 GO
 
+
+CREATE NONCLUSTERED INDEX [IX_Logs]
+    ON [dbo].[Logs]([AddDateTime] ASC);
+GO
+

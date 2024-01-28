@@ -1,6 +1,11 @@
 CREATE PROCEDURE [dbo].[MoveUnDoc]
-  @param1 int = 0,
-  @param2 int
 AS
-  SELECT @param1, @param2
+  insert into FnDocs (FnID, DocDate, DocNum, UpdateDate, AddDate, Type)
+						select	rid, LastDocDate, LastDocNum, UpdateDate, GETDATE(), 1
+						from	FN 
+						where LastDocNum is not null
+  
+  update fn set LastDocDate = null, LastDocNum = null where RID in (select FnID from FnDocs where Type = 1 group by FnID )
+
+  --SELECT @param1, @param2
 RETURN 0

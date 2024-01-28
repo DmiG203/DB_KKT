@@ -1,8 +1,9 @@
 CREATE VIEW dbo.GetFnList
 AS
 SELECT        TOP (100) PERCENT dbo.Org.RID AS OrgID, dbo.Org.NumOP, dbo.Computers.RID AS CompID, dbo.Computers.ComputerName, dbo.Kkm.RID AS KkmID, dbo.Kkm.SN AS KkmSn, dbo.Kkm.ModelID AS KkmModelID, 
-                         dbo.KkmModel.Name AS KkmModel, dbo.Kkm.Deleted AS kkmDeleted, dbo.Fn.RID AS FnID, dbo.Fn.SN AS FnSn, dbo.FnModel.Name AS FnModel, dbo.Fn.Status, dbo.Fn.DateExpired, RepReg_1.FFD AS KkmFFD, 
-                         RepReg_1.WorkMode,
+                         dbo.KkmModel.Name AS KkmModel, dbo.Kkm.Deleted AS kkmDeleted, dbo.Fn.RID AS FnID, dbo.Fn.SN AS FnSn, dbo.FnModel.Name AS FnModel, dbo.Fn.Status, 
+                         CASE dbo. Fn .Status WHEN 0 THEN 'Не активирована' WHEN 1 THEN 'Рабочий режим' WHEN 2 THEN 'Закрыт архив ФН' WHEN 3 THEN 'Сломана (есть заключение производителя)' WHEN 4 THEN 'Выведена из реестра ФНС (активировать не возможно)'
+                          ELSE 'Статус неизвестен' END AS StatusDescription, dbo.Fn.DateExpired, RepReg_1.FFD AS KkmFFD, RepReg_1.WorkMode,
                              (SELECT        MIN(DateRep) AS Expr1
                                FROM            dbo.RepReg
                                WHERE        (RepTypeID = 1) AND (FnID = dbo.Fn.RID)) AS DateStart,
@@ -103,7 +104,7 @@ Begin DesignProperties =
    Begin PaneConfigurations = 
       Begin PaneConfiguration = 0
          NumPanes = 4
-         Configuration = "(H (1[38] 4[22] 2[29] 3) )"
+         Configuration = "(H (1[39] 4[28] 2[24] 3) )"
       End
       Begin PaneConfiguration = 1
          NumPanes = 3

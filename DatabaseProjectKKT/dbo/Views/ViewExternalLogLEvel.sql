@@ -2,9 +2,9 @@ CREATE VIEW dbo.ViewExternalLogLEvel
 AS
 SELECT        TOP (100) PERCENT pci.IP, x.Xml.value('(/XML/MAIN_PREMIERA_EXTERNAL/@LogLevel)[1]', 'int') AS MAIN_PREMIERA_EXTERNAL, x.Xml.value('(/XML/DATAPROCESSOR/@LogLevel)[1]', 'int') AS DATAPROCESSOR, 
                          x.Xml.value('(/XML/CONNECT1/@LogLevel)[1]', 'int') AS CONNECT1, x.Xml.value('(/XML/SENDER/@LogLevel)[1]', 'int') AS SENDER, x.Xml.value('(/XML/CONNECTHTTP1/@LogLevel)[1]', 'int') AS CONNECTHTTP1
-FROM            dbo.Xml_Files AS x LEFT OUTER JOIN
+FROM            dbo.Xml_Files AS x INNER JOIN
                          dbo.PC_Info AS pci ON pci.CompID = x.CompID
-WHERE        (x.FileName = 'PremieraExternal.ini')
+WHERE        (x.FileName = 'PremieraExternal.ini') AND (pci.StatusID = 1)
 ORDER BY pci.OrgID
 
 GO

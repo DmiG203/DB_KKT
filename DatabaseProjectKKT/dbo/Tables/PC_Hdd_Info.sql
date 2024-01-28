@@ -18,7 +18,3 @@ CREATE TABLE [dbo].[PC_Hdd_Info] (
 GO
 
 
-ALTER TABLE [dbo].[PC_Hdd_Info]
-    ADD CONSTRAINT [FK_PC_Hdd_Info_PC_Info1] FOREIGN KEY ([PC_ID]) REFERENCES [dbo].[PC_Info] ([ID]);
-GO
-

@@ -19,15 +19,3 @@ CREATE TABLE [dbo].[BT_Software_Info] (
 );
 GO
 
-ALTER TABLE [dbo].[BT_Software_Info]
-    ADD CONSTRAINT [FK_BT_Software_Info_Computers] FOREIGN KEY ([CompID]) REFERENCES [dbo].[Computers] ([RID]);
-GO
-
-ALTER TABLE [dbo].[BT_Software_Info]
-    ADD CONSTRAINT [FK_BT_Software_Info_Statuses] FOREIGN KEY ([StatusID]) REFERENCES [dbo].[Statuses] ([ID]);
-GO
-
-ALTER TABLE [dbo].[BT_Software_Info]
-    ADD CONSTRAINT [PK_BT_Software_Info] PRIMARY KEY CLUSTERED ([ID] ASC);
-GO
-

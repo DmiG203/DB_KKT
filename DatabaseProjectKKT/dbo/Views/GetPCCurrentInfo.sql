@@ -1,7 +1,8 @@
-CREATE VIEW dbo.GetPCCurrentInfo
+CREATE VIEW [dbo].[GetPCCurrentInfo]
 AS
-SELECT        o.NumOP, pc.IP, pc.MAC, s.Name, os.Hostname, os.OS, os.Arch, os.Version, os.Serial_number, os.Status, os.Install_date, os.lastBootTime, h.CPU1, h.CPU2, h.RAM, h.RAM_total_size, bb.Manufacturer AS bb_Manufacturer, 
-                         bb.Product AS bb_product, bb.Serial_number AS bb_SN, bb.Version AS bb_version, m.Manufacturer, m.Model, m.Bios_SN, m.Update_Date
+SELECT        o.NumOP, pc.ID, pc.IP, pc.MAC, s.Name, os.Hostname, os.OS, os.Arch, os.Version, os.Serial_number, os.Status, os.Install_date, os.lastBootTime, h.CPU1, h.CPU2, icpu.Cores, icpu.Threads, h.RAM, h.RAM_total_size, 
+                         bb.Manufacturer AS bb_Manufacturer, bb.Product AS bb_product, bb.Serial_number AS bb_SN, bb.Version AS bb_version, m.Manufacturer, m.Model, m.Bios_SN, m.Update_Date, CAST(CASE WHEN Comments.RID IS NOT NULL 
+                         THEN 1 ELSE 0 END AS BIT) AS CommentExist, SUM(hdd.Size) AS HHD_Size
 FROM            dbo.PC_Info AS pc LEFT OUTER JOIN
                          dbo.Statuses AS s ON s.ID = pc.StatusID LEFT OUTER JOIN
                              (SELECT        ID, PC_ID, MAC, Hostname, OS, Arch, Version, Status, Serial_number, Install_date, lastBootTime, Add_date, Update_date
@@ -29,20 +30,59 @@ FROM            dbo.PC_Info AS pc LEFT OUTER JOIN
                                                                FROM            dbo.PC_Manufacturer_Info AS PC_Manufacturer_Info_1
                                                                GROUP BY PC_ID))) AS m ON m.PC_ID = pc.ID INNER JOIN
                          dbo.Computers AS c ON c.RID = pc.CompID INNER JOIN
-                         dbo.Org AS o ON o.RID = c.OrgID
-WHERE        (s.ID = 1)
+                         dbo.Org AS o ON o.RID = c.OrgID INNER JOIN
+                         dbo.Info_CPU AS icpu ON icpu.Name = h.CPU1 INNER JOIN
+                         dbo.PC_Hdd_Info AS hdd ON hdd.PC_ID = pc.ID LEFT OUTER JOIN
+                         dbo.Comments ON dbo.Comments.TableID = 4 AND dbo.Comments.ItemID = pc.ID AND dbo.Comments.RID =
+                             (SELECT        TOP (1) RID
+                               FROM            dbo.Comments AS com1
+                               WHERE        (TableID = 4) AND (ItemID = pc.ID))
+WHERE        (s.ID IN (1))
+GROUP BY o.NumOP, pc.ID, pc.IP, pc.MAC, s.Name, os.Hostname, os.OS, os.Arch, os.Version, os.Serial_number, os.Status, os.Install_date, os.lastBootTime, h.CPU1, h.CPU2, h.RAM, h.RAM_total_size, bb.Manufacturer, bb.Product, 
+                         bb.Serial_number, bb.Version, m.Manufacturer, m.Model, m.Bios_SN, m.Update_Date, icpu.Cores, icpu.Threads, CAST(CASE WHEN Comments.RID IS NOT NULL THEN 1 ELSE 0 END AS BIT)
 
 GO
 
-EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'         Begin Table = "m"
+EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'
+         Begin Table = "o"
             Begin Extent = 
-               Top = 102
-               Left = 250
-               Bottom = 232
-               Right = 424
+               Top = 6
+               Left = 883
+               Bottom = 136
+               Right = 1057
             End
             DisplayFlags = 280
-            TopColumn = 3
+            TopColumn = 0
+         End
+         Begin Table = "icpu"
+            Begin Extent = 
+               Top = 138
+               Left = 38
+               Bottom = 268
+               Right = 212
+            End
+            DisplayFlags = 280
+            TopColumn = 0
+         End
+         Begin Table = "hdd"
+            Begin Extent = 
+               Top = 138
+               Left = 462
+               Bottom = 268
+               Right = 636
+            End
+            DisplayFlags = 280
+            TopColumn = 0
+         End
+         Begin Table = "Comments"
+            Begin Extent = 
+               Top = 459
+               Left = 831
+               Bottom = 589
+               Right = 1021
+            End
+            DisplayFlags = 280
+            TopColumn = 0
          End
       End
    End
@@ -53,7 +93,7 @@ EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'         B
       End
    End
    Begin CriteriaPane = 
-      Begin ColumnWidths = 11
+      Begin ColumnWidths = 12
          Column = 1440
          Alias = 900
          Table = 1170
@@ -85,7 +125,7 @@ Begin DesignProperties =
    Begin PaneConfigurations = 
       Begin PaneConfiguration = 0
          NumPanes = 4
-         Configuration = "(H (1[40] 4[20] 2[20] 3) )"
+         Configuration = "(H (1[32] 4[29] 2[20] 3) )"
       End
       Begin PaneConfiguration = 1
          NumPanes = 3
@@ -201,6 +241,16 @@ Begin DesignProperties =
             DisplayFlags = 280
             TopColumn = 0
          End
+         Begin Table = "m"
+            Begin Extent = 
+               Top = 102
+               Left = 250
+               Bottom = 232
+               Right = 424
+            End
+            DisplayFlags = 280
+            TopColumn = 3
+         End
          Begin Table = "c"
             Begin Extent = 
                Top = 6
@@ -210,18 +260,7 @@ Begin DesignProperties =
             End
             DisplayFlags = 280
             TopColumn = 0
-         End
-         Begin Table = "o"
-            Begin Extent = 
-               Top = 6
-               Left = 883
-               Bottom = 136
-               Right = 1057
-            End
-            DisplayFlags = 280
-            TopColumn = 0
-         End
-', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'GetPCCurrentInfo';
+         End', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'GetPCCurrentInfo';
 
 
 GO
