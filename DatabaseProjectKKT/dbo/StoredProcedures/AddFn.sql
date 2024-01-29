@@ -25,14 +25,20 @@ Begin
 			,@SourceID  bigint
 			,@ModelKkmID int
 
-	Set @snFnID = (Select rid from fn where sn = @snFN);
+	If TRY_PARSE(@snFN as Numeric) is null
+        BEGIN
+           Set @Action = 'Серийный номер ФН не может быть пустым'
+           RETURN -1
+        END
+
+    Set @snFnID = (Select rid from fn where sn = @snFN);
 	Set @Action = null
 	Set @ModelKkmID = (select rid from kkmModel where kkmModel.Name = @ModelKkm)
 
 	-- получаем ID для Source
 	EXEC GetTextID 
-			@text = @Source, 
-			@TextID = @SourceID OUTPUT 
+		@text = @Source, 
+		@TextID = @SourceID OUTPUT 
 	
 	-- если дата блокировки не передана, проставляем нулевую дату
 	If @FNexpired is null 
