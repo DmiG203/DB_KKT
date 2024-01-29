@@ -1,10 +1,4 @@
-/*RIGHT OUTER JOIN dbo.kkm ON dbo.kkmModel.rid = dbo.kkm.modelID ON dbo.logs.kkmID = dbo.kkm.rid
-dbo.logs LEFT OUTER JOIN
-                         dbo.Org INNER JOIN
-                         dbo.Computers ON dbo.Org.RID = dbo.Computers.OrgID ON dbo.logs.compID = dbo.Computers.rid LEFT OUTER JOIN
-                         dbo.kkmModel RIGHT OUTER JOIN
-                         dbo.kkm ON dbo.kkmModel.rid = dbo.kkm.modelID ON dbo.logs.kkmID = dbo.kkm.rid*/
-CREATE VIEW dbo.View_Logs
+CREATE VIEW dbo.[DEL_View_Logs]
 AS
 SELECT     dbo.logs.rid, dbo.Org.NumOP, dbo.logs.compID, dbo.Computers.ComputerName, dbo.kkm.sn AS KkmSn, dbo.kkmModel.Name AS kkmModel, dbo.logs.addDateTime, dbo.textTable.text AS event
 FROM        dbo.logs LEFT OUTER JOIN
@@ -13,7 +7,9 @@ FROM        dbo.logs LEFT OUTER JOIN
                   dbo.Org ON dbo.Org.RID = dbo.Computers.OrgID LEFT OUTER JOIN
                   dbo.kkm ON dbo.logs.kkmID = dbo.kkm.rid LEFT OUTER JOIN
                   dbo.kkmModel ON dbo.kkmModel.rid = dbo.kkm.modelID
+GO
 
+EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 2, @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'DEL_View_Logs';
 GO
 
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'      Table = 1176
@@ -30,14 +26,7 @@ EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'      Tabl
       End
    End
 End
-', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'View_Logs';
-
-
-GO
-
-EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 2, @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'View_Logs';
-
-
+', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'DEL_View_Logs';
 GO
 
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane1', @value = N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]
@@ -183,8 +172,6 @@ Begin DesignProperties =
       Begin ColumnWidths = 11
          Column = 1992
          Alias = 1896
-   ', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'View_Logs';
-
-
+   ', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'DEL_View_Logs';
 GO
 

@@ -1,4 +1,4 @@
-CREATE VIEW dbo.GetFnList
+CREATE VIEW dbo.[DEL_GetFnList]
 AS
 SELECT        TOP (100) PERCENT dbo.Org.RID AS OrgID, dbo.Org.NumOP, dbo.Computers.RID AS CompID, dbo.Computers.ComputerName, dbo.Kkm.RID AS KkmID, dbo.Kkm.SN AS KkmSn, dbo.Kkm.ModelID AS KkmModelID, 
                          dbo.KkmModel.Name AS KkmModel, dbo.Kkm.Deleted AS kkmDeleted, dbo.Fn.RID AS FnID, dbo.Fn.SN AS FnSn, dbo.FnModel.Name AS FnModel, dbo.Fn.Status, 
@@ -27,12 +27,9 @@ FROM            dbo.Kkm LEFT OUTER JOIN
                          dbo.Computers ON dbo.LocKkm.CompID = dbo.Computers.RID LEFT OUTER JOIN
                          dbo.Org ON dbo.Computers.OrgID = dbo.Org.RID
 ORDER BY dbo.Computers.ComputerName, RepReg_1.DateRep
-
 GO
 
-EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 2, @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'GetFnList';
-
-
+EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 2, @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'DEL_GetFnList';
 GO
 
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'            TopColumn = 0
@@ -94,9 +91,7 @@ EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'          
       End
    End
 End
-', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'GetFnList';
-
-
+', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'DEL_GetFnList';
 GO
 
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane1', @value = N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]
@@ -238,8 +233,6 @@ Begin DesignProperties =
                Right = 419
             End
             DisplayFlags = 280
-', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'GetFnList';
-
-
+', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'DEL_GetFnList';
 GO
 

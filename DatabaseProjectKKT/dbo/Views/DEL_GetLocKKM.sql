@@ -1,31 +1,12 @@
-/*
-select repreg.* , kkmModel.Name As KKM_Name
-from repreg 
-inner join fn on fn.rid = repreg.fnid
-left join kkm on kkm.rid = fn.kktID
-inner join kkmModel on kkm.modelID = kkmModel.rid
-where --fn.sn like '999%'
-DateRep >= convert(date,'20.10.2021',104)
-
---update repreg set Comment = null where comment = ''
-*/
-CREATE VIEW dbo.DateBadRepReg
+CREATE VIEW dbo.[DEL_GetLocKKM]
 AS
-SELECT        TOP (100) PERCENT CONVERT(DATE, dbo.RepReg.DateRep, 104) AS DateRepReg, dbo.kkm.SN, dbo.RepReg.Comment, dbo.RepReg.RID
-FROM            dbo.RepReg INNER JOIN
-                         dbo.fn ON dbo.fn.RID = dbo.RepReg.FnID INNER JOIN
-                         dbo.kkm ON dbo.fn.KktID = dbo.kkm.RID LEFT OUTER JOIN
-                         dbo.LocKkm ON dbo.LocKkm.CompID = dbo.kkm.RID LEFT OUTER JOIN
-                         dbo.Computers ON dbo.LocKkm.CompID = dbo.Computers.RID LEFT OUTER JOIN
+SELECT        dbo.LocKkm.rid, dbo.kkm.rid AS KkmID, dbo.kkm.sn AS KkmSn, dbo.kkmModel.rid AS KkmModelID, dbo.kkmModel.Name AS KkmModel, dbo.Org.NumOP, dbo.Computers.rid AS CompID, dbo.Computers.ComputerName, 
+                         dbo.LocKkm.ComPort, dbo.LocKkm.ComBaudRate, dbo.LocKkm.addDate, dbo.LocKkm.updateDate, dbo.LocKkm.source
+FROM            dbo.LocKkm INNER JOIN
+                         dbo.Computers ON dbo.LocKkm.compID = dbo.Computers.rid INNER JOIN
+                         dbo.kkmModel INNER JOIN
+                         dbo.kkm ON dbo.kkmModel.rid = dbo.kkm.modelID ON dbo.LocKkm.KkmId = dbo.kkm.rid INNER JOIN
                          dbo.Org ON dbo.Computers.OrgID = dbo.Org.RID
-WHERE        (dbo.RepReg.AddsID IS NULL) AND (dbo.RepReg.FD > 0) AND (CAST(dbo.RepReg.FPD AS bigint) > 0) AND (dbo.RepReg.RepTypeID < 3)
-GROUP BY CONVERT(DATE, dbo.RepReg.DateRep, 104), dbo.kkm.SN, dbo.RepReg.Comment, dbo.RepReg.RID
-
-GO
-
-EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 2, @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'DateBadRepReg';
-
-
 GO
 
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane1', @value = N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]
@@ -33,7 +14,7 @@ Begin DesignProperties =
    Begin PaneConfigurations = 
       Begin PaneConfiguration = 0
          NumPanes = 4
-         Configuration = "(H (1[40] 4[20] 2[20] 3) )"
+         Configuration = "(H (1[41] 4[25] 2[15] 3) )"
       End
       Begin PaneConfiguration = 1
          NumPanes = 3
@@ -96,65 +77,55 @@ Begin DesignProperties =
    Begin DiagramPane = 
       Begin Origin = 
          Top = 0
-         Left = -384
+         Left = 0
       End
       Begin Tables = 
-         Begin Table = "RepReg"
-            Begin Extent = 
-               Top = 7
-               Left = 48
-               Bottom = 170
-               Right = 265
-            End
-            DisplayFlags = 280
-            TopColumn = 0
-         End
-         Begin Table = "fn"
-            Begin Extent = 
-               Top = 7
-               Left = 313
-               Bottom = 170
-               Right = 530
-            End
-            DisplayFlags = 280
-            TopColumn = 0
-         End
-         Begin Table = "kkm"
-            Begin Extent = 
-               Top = 7
-               Left = 578
-               Bottom = 170
-               Right = 795
-            End
-            DisplayFlags = 280
-            TopColumn = 0
-         End
          Begin Table = "LocKkm"
             Begin Extent = 
-               Top = 7
-               Left = 843
-               Bottom = 170
-               Right = 1060
+               Top = 23
+               Left = 418
+               Bottom = 339
+               Right = 592
             End
             DisplayFlags = 280
             TopColumn = 0
          End
          Begin Table = "Computers"
             Begin Extent = 
-               Top = 7
-               Left = 1108
-               Bottom = 170
-               Right = 1325
+               Top = 21
+               Left = 214
+               Bottom = 377
+               Right = 389
+            End
+            DisplayFlags = 280
+            TopColumn = 0
+         End
+         Begin Table = "kkmModel"
+            Begin Extent = 
+               Top = 25
+               Left = 825
+               Bottom = 290
+               Right = 999
+            End
+            DisplayFlags = 280
+            TopColumn = 0
+         End
+         Begin Table = "kkm"
+            Begin Extent = 
+               Top = 23
+               Left = 621
+               Bottom = 345
+               Right = 795
             End
             DisplayFlags = 280
             TopColumn = 0
          End
          Begin Table = "Org"
             Begin Extent = 
-               Top = 7
-               Left = 1373
-               Bottom = 170
-               Right = 1590
+               Top = 20
+               Left = 11
+               Bottom = 150
+               Right = 185
             End
             DisplayFlags = 280
             TopColumn = 0
@@ -168,15 +139,10 @@ Begin DesignProperties =
       End
    End
    Begin CriteriaPane = 
-      Begin ColumnWidths = 12
-         Column = 1440
-         Alias = 900
-    ', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'DateBadRepReg';
-
-
-GO
-
-EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'     Table = 1170
+      Begin ColumnWidths = 11
+         Column = 2760
+         Alias = 2685
+         Table = 1170
          Output = 720
          Append = 1400
          NewValue = 1170
@@ -187,11 +153,15 @@ EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'     Table
          Or = 1350
          Or = 1350
          Or = 1350
-      End
+  ', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'DEL_GetLocKKM';
+GO
+
+EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 2, @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'DEL_GetLocKKM';
+GO
+
+EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'    End
    End
 End
-', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'DateBadRepReg';
-
-
+', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'DEL_GetLocKKM';
 GO
 

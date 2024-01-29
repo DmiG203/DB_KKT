@@ -1,13 +1,16 @@
-CREATE VIEW dbo.GetLocKKM
+CREATE VIEW dbo.[ViewCompList]
 AS
-SELECT        dbo.LocKkm.rid, dbo.kkm.rid AS KkmID, dbo.kkm.sn AS KkmSn, dbo.kkmModel.rid AS KkmModelID, dbo.kkmModel.Name AS KkmModel, dbo.Org.NumOP, dbo.Computers.rid AS CompID, dbo.Computers.ComputerName, 
-                         dbo.LocKkm.ComPort, dbo.LocKkm.ComBaudRate, dbo.LocKkm.addDate, dbo.LocKkm.updateDate, dbo.LocKkm.source
-FROM            dbo.LocKkm INNER JOIN
-                         dbo.Computers ON dbo.LocKkm.compID = dbo.Computers.rid INNER JOIN
-                         dbo.kkmModel INNER JOIN
-                         dbo.kkm ON dbo.kkmModel.rid = dbo.kkm.modelID ON dbo.LocKkm.KkmId = dbo.kkm.rid INNER JOIN
-                         dbo.Org ON dbo.Computers.OrgID = dbo.Org.RID
-
+SELECT        dbo.Org.RID AS OrgID, dbo.Org.NumOP, dbo.Computers.RID AS CompID, dbo.Computers.ComputerName, dbo.Kkm.RID AS KkmID, dbo.Kkm.SN AS KkmSn, dbo.Kkm.ModelID AS KkmModelID, dbo.KkmModel.Name AS KkmModel, 
+                         dbo.Kkm.Deleted AS kkmDeleted
+FROM            dbo.Kkm LEFT OUTER JOIN
+                         dbo.LocKkm ON dbo.Kkm.RID = dbo.LocKkm.KkmID AND
+                             (SELECT        TOP (1) RID
+                               FROM            dbo.LocKkm AS lockkm2
+                               WHERE        (KkmID = dbo.Kkm.RID)
+                               ORDER BY AddDate DESC) = dbo.LocKkm.RID LEFT OUTER JOIN
+                         dbo.Computers ON dbo.LocKkm.CompID = dbo.Computers.RID LEFT OUTER JOIN
+                         dbo.Org ON dbo.Computers.OrgID = dbo.Org.RID LEFT OUTER JOIN
+                         dbo.KkmModel ON dbo.Kkm.ModelID = dbo.KkmModel.RID
 GO
 
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane1', @value = N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]
@@ -15,7 +18,7 @@ Begin DesignProperties =
    Begin PaneConfigurations = 
       Begin PaneConfiguration = 0
          NumPanes = 4
-         Configuration = "(H (1[41] 4[25] 2[15] 3) )"
+         Configuration = "(H (1[54] 4[13] 2[23] 3) )"
       End
       Begin PaneConfiguration = 1
          NumPanes = 3
@@ -81,52 +84,52 @@ Begin DesignProperties =
          Left = 0
       End
       Begin Tables = 
-         Begin Table = "LocKkm"
+         Begin Table = "Kkm"
             Begin Extent = 
-               Top = 23
-               Left = 418
-               Bottom = 339
-               Right = 592
+               Top = 15
+               Left = 213
+               Bottom = 316
+               Right = 387
             End
             DisplayFlags = 280
             TopColumn = 0
+         End
+         Begin Table = "LocKkm"
+            Begin Extent = 
+               Top = 15
+               Left = 432
+               Bottom = 315
+               Right = 606
+            End
+            DisplayFlags = 280
+            TopColumn = 1
          End
          Begin Table = "Computers"
             Begin Extent = 
-               Top = 21
-               Left = 214
-               Bottom = 377
-               Right = 389
-            End
-            DisplayFlags = 280
-            TopColumn = 0
-         End
-         Begin Table = "kkmModel"
-            Begin Extent = 
-               Top = 25
-               Left = 825
-               Bottom = 290
-               Right = 999
-            End
-            DisplayFlags = 280
-            TopColumn = 0
-         End
-         Begin Table = "kkm"
-            Begin Extent = 
-               Top = 23
-               Left = 621
-               Bottom = 345
-               Right = 795
+               Top = 13
+               Left = 637
+               Bottom = 316
+               Right = 812
             End
             DisplayFlags = 280
             TopColumn = 0
          End
          Begin Table = "Org"
             Begin Extent = 
-               Top = 20
-               Left = 11
-               Bottom = 150
-               Right = 185
+               Top = 11
+               Left = 842
+               Bottom = 319
+               Right = 1016
+            End
+            DisplayFlags = 280
+            TopColumn = 0
+         End
+         Begin Table = "KkmModel"
+            Begin Extent = 
+               Top = 16
+               Left = 9
+               Bottom = 314
+               Right = 183
             End
             DisplayFlags = 280
             TopColumn = 0
@@ -141,8 +144,8 @@ Begin DesignProperties =
    End
    Begin CriteriaPane = 
       Begin ColumnWidths = 11
-         Column = 2760
-         Alias = 2685
+         Column = 1440
+         Alias = 900
          Table = 1170
          Output = 720
          Append = 1400
@@ -154,21 +157,15 @@ Begin DesignProperties =
          Or = 1350
          Or = 1350
          Or = 1350
-  ', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'GetLocKKM';
-
-
+   ', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'ViewCompList';
 GO
 
-EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 2, @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'GetLocKKM';
-
-
+EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 2, @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'ViewCompList';
 GO
 
-EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'    End
+EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'   End
    End
 End
-', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'GetLocKKM';
-
-
+', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'ViewCompList';
 GO
 

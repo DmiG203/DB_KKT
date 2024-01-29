@@ -1,10 +1,12 @@
-CREATE VIEW dbo.ViewUnconfirmedDoc
+CREATE VIEW dbo.ViewCompOldDrvKkm
 AS
-SELECT        NumOP, ComputerName, KkmSn, KkmModel, WorkMode, FnSn, UnconfirmedDoc, LastDocDate, ComPort, ComBaudRate, IpAddress, IpPort, RNDIS, LastDocNum, LastStart AS UpdateDate
+SELECT        TOP (100) PERCENT NumOP, ComputerName, ShtrihDrvVer
 FROM            dbo.ViewKkmList
-WHERE        (UnconfirmedDoc > 10)
-
+WHERE        (LEFT(ShtrihDrvVer, 1) <> 5) AND (FnID IS NOT NULL)
+GROUP BY NumOP, ComputerName, ShtrihDrvVer
+ORDER BY NumOP, ComputerName
 GO
+
 
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane1', @value = N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]
 Begin DesignProperties = 
@@ -82,7 +84,7 @@ Begin DesignProperties =
                Top = 6
                Left = 38
                Bottom = 136
-               Right = 254
+               Right = 270
             End
             DisplayFlags = 280
             TopColumn = 0
@@ -94,46 +96,10 @@ Begin DesignProperties =
    Begin DataPane = 
       Begin ParameterDefaults = ""
       End
-      Begin ColumnWidths = 34
-         Width = 284
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-         Width = 1500
-      End
    End
    Begin CriteriaPane = 
-      Begin ColumnWidths = 11
-         Column = 2910
+      Begin ColumnWidths = 12
+         Column = 1440
          Alias = 900
          Table = 1170
          Output = 720
@@ -149,13 +115,10 @@ Begin DesignProperties =
       End
    End
 End
-', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'ViewUnconfirmedDoc';
-
-
+', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'ViewCompOldDrvKkm';
 GO
 
-EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 1, @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'ViewUnconfirmedDoc';
 
-
+EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 1, @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'ViewCompOldDrvKkm';
 GO
 

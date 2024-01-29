@@ -1,4 +1,3 @@
-/****** Скрипт для команды SelectTopNRows из среды SSMS  ******/
 CREATE PROCEDURE [dbo].[GetKKMOFDName](
 		 @SnKkm nvarchar(MAX)
 		,@OFDName nvarchar(15) = null OUTPUT
@@ -19,19 +18,19 @@ SELECT TOP(1)
 			FORMAT([NumOP], '000')
 	  ,null
 	  ) as OFDName
-  FROM [KKT].[dbo].[GetKkmList]
+  FROM [KKT].[dbo].[ViewKkmList]
   where kkmDeleted = 0 and fnsn is not null
   and kkmsn = @SnKkm
   order by KkmID desc, FnID desc
 )
 Set @NumOP = (
 SELECT TOP (1) [NumOP]
-  FROM [KKT].[dbo].[GetLocKKM]
-  where sn = @SnKkm
+  FROM [KKT].[dbo].[ViewLocKKM]
+  where KkmSn = @SnKkm
   order by rid desc
 )
 Set @INN = (
-Select TOP(1) INN from Org where NUmOP = @NumOP
+Select TOP(1) INN from Org where NumOP = @NumOP
 )
 End
 

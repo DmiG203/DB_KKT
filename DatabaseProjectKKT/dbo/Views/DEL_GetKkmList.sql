@@ -1,4 +1,4 @@
-CREATE VIEW dbo.GetKkmList
+CREATE VIEW dbo.[DEL_GetKkmList]
 AS
 SELECT        dbo.Org.RID AS OrgID, dbo.Org.NumOP, dbo.Computers.RID AS CompID, dbo.Computers.ComputerName, dbo.Kkm.RID AS KkmID, dbo.Kkm.SN AS KkmSn, dbo.Kkm.ModelID AS KkmModelID, dbo.KkmModel.Name AS KkmModel, 
                          dbo.Kkm.Deleted AS KkmDeleted, dbo.Kkm.AddDate AS KkmAddDate, dbo.Kkm.SoftVer, dbo.Kkm.LoaderVersion, dbo.Kkm.MAC, dbo.Fn.RID AS FnID, dbo.Fn.SN AS FnSn, dbo.Fn.ModelID AS FnModelID, 
@@ -38,7 +38,14 @@ FROM            dbo.Kkm LEFT OUTER JOIN
                              (SELECT        MAX(DateReg) AS Expr1
                                FROM            dbo.FNSData AS fns2
                                WHERE        (KkmID = fns.KkmID))
+GO
 
+GRANT SELECT
+    ON OBJECT::[dbo].[DEL_GetKkmList] TO [cash]
+    AS [dbo];
+GO
+
+EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 2, @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'DEL_GetKkmList';
 GO
 
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'          TopColumn = 2
@@ -132,14 +139,7 @@ EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'          
       End
    End
 End
-', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'GetKkmList';
-
-
-GO
-
-EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 2, @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'GetKkmList';
-
-
+', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'DEL_GetKkmList';
 GO
 
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane1', @value = N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]
@@ -281,14 +281,6 @@ Begin DesignProperties =
                Right = 175
             End
             DisplayFlags = 280
-  ', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'GetKkmList';
-
-
-GO
-
-
-GRANT SELECT
-    ON OBJECT::[dbo].[GetKkmList] TO [cash]
-    AS [dbo];
+  ', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'DEL_GetKkmList';
 GO
 

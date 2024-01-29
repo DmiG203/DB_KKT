@@ -1,4 +1,4 @@
-CREATE VIEW dbo.GetKkmLic
+CREATE VIEW dbo.[DEL_GetKkmLic]
 AS
 SELECT        dbo.Org.NumOP, dbo.Computers.ComputerName, dbo.kkm.sn, dbo.kkmModel.Name AS ModelKkm, dbo.kkm.SoftVer, dbo.fn.sn AS snFn, dbo.fnModel.Name AS ModelFn, dbo.fn.status, dbo.fn.DateExpired, dbo.kkm.WorkMode, 
                          dbo.fn.LastDocNum, dbo.fn.LastDocDate, dbo.LocKkm.ComPort, dbo.LocKkm.ComBaudRate, dbo.kkm_lic_type.Name AS lic_name, dbo.kkm_lic.licHEX, dbo.kkm_lic.syngHEX
@@ -15,7 +15,6 @@ FROM            dbo.kkm_lic_type INNER JOIN
                                ORDER BY addDate DESC) = dbo.LocKkm.rid LEFT OUTER JOIN
                          dbo.Computers ON dbo.LocKkm.compID = dbo.Computers.rid LEFT OUTER JOIN
                          dbo.Org ON dbo.Computers.OrgID = dbo.Org.RID
-
 GO
 
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'      TopColumn = 0
@@ -66,14 +65,7 @@ EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'      TopC
       End
    End
 End
-', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'GetKkmLic';
-
-
-GO
-
-EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 2, @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'GetKkmLic';
-
-
+', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'DEL_GetKkmLic';
 GO
 
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane1', @value = N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]
@@ -215,8 +207,9 @@ Begin DesignProperties =
                Right = 1318
             End
             DisplayFlags = 280
-      ', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'GetKkmLic';
+      ', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'DEL_GetKkmLic';
+GO
 
-
+EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 2, @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'DEL_GetKkmLic';
 GO
 

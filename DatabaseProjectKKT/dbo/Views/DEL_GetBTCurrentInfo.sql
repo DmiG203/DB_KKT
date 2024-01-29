@@ -1,5 +1,4 @@
-/*AND (o.NumOP <> 0)*/
-CREATE VIEW dbo.GetBTCurrentInfo
+CREATE VIEW dbo.[DEL_GetBTCurrentInfo]
 AS
 SELECT DISTINCT 
                          o.NumOP, pci.IP, os.Hostname, bts.CompID, bts.Terminal_number, bts.Merchant_number, bts.Serial_number, bts.Terminal_model, bts.Software_versions_UPOS, bts.Contactless, bts.Loading_parameters, 
@@ -27,7 +26,6 @@ FROM            dbo.BT_Software_Info AS bts LEFT OUTER JOIN
                          dbo.Computers AS c ON c.RID = pci.CompID INNER JOIN
                          dbo.Org AS o ON o.RID = c.OrgID
 WHERE        (bts.StatusID = 1) AND (bts.IsDeleted = 0) AND (pci.StatusID = 1)
-
 GO
 
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane1', @value = N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]
@@ -170,14 +168,10 @@ Begin DesignProperties =
             End
             DisplayFlags = 280
             TopColumn = 0
-   ', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'GetBTCurrentInfo';
-
-
+   ', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'DEL_GetBTCurrentInfo';
 GO
 
-EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 2, @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'GetBTCurrentInfo';
-
-
+EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 2, @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'DEL_GetBTCurrentInfo';
 GO
 
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'      End
@@ -217,8 +211,6 @@ EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'      End
       End
    End
 End
-', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'GetBTCurrentInfo';
-
-
+', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'DEL_GetBTCurrentInfo';
 GO
 

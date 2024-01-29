@@ -1,9 +1,9 @@
-CREATE VIEW dbo.ViewuUnusedTerminalsForMoreThan14Days
+CREATE VIEW dbo.[DEL_ViewuUnusedTerminalsForMoreThan14Days]
 AS
 SELECT        btss.ID, t.NumOP, t.IP, t.Hostname, t.Terminal_number, t.Serial_number, t.Terminal_model, t.Detected, t.DateTime_last_operation, t.Add_date, btss.Min_add_date AS First_add_date, t.Update_date, DATEDIFF(day, 
                          t.DateTime_last_operation, t.Update_date) AS Days_of_downtime, DATEDIFF(day, t.Update_date, GETDATE()) AS Days_without_update, DATEDIFF(day, t.DateTime_last_operation, t.Update_date) + DATEDIFF(day, t.Update_date, 
                          GETDATE()) AS Sum_Days
-FROM            dbo.GetBTCurrentInfo AS t INNER JOIN
+FROM            dbo.ViewBTCurrentInfo AS t INNER JOIN
                              (SELECT        bts.ID, bts.CompID, bts.Terminal_number, bts.Merchant_number, bts.Serial_number, bts.Terminal_model, bts.Contactless, bts.Loading_parameters, bts.DateTime_last_operation, bts.Software_versions_UPOS, 
                                                          bts.StatusID, bts.IsDeleted, bts.Add_date, bts.Update_date, bts_g.Min_add_date
                                FROM            dbo.BT_Software_Info AS bts INNER JOIN
@@ -16,6 +16,9 @@ FROM            dbo.GetBTCurrentInfo AS t INNER JOIN
 WHERE        (DATEDIFF(day, t.DateTime_last_operation, t.Update_date) >= 14) AND (t.Detected = 1) OR
                          (t.Detected = 1) AND (DATEDIFF(day, t.DateTime_last_operation, t.Update_date) + DATEDIFF(day, t.Update_date, GETDATE()) >= 14) OR
                          (t.Detected = 1) AND (DATEDIFF(day, t.Update_date, GETDATE()) >= 14)
+GO
+
+EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 1, @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'DEL_ViewuUnusedTerminalsForMoreThan14Days';
 GO
 
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane1', @value = N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]
@@ -89,22 +92,22 @@ Begin DesignProperties =
          Left = 0
       End
       Begin Tables = 
-         Begin Table = "t"
-            Begin Extent = 
-               Top = 6
-               Left = 38
-               Bottom = 256
-               Right = 276
-            End
-            DisplayFlags = 280
-            TopColumn = 11
-         End
          Begin Table = "btss"
             Begin Extent = 
                Top = 6
                Left = 314
                Bottom = 136
                Right = 532
+            End
+            DisplayFlags = 280
+            TopColumn = 0
+         End
+         Begin Table = "t"
+            Begin Extent = 
+               Top = 6
+               Left = 38
+               Bottom = 136
+               Right = 276
             End
             DisplayFlags = 280
             TopColumn = 0
@@ -135,9 +138,6 @@ Begin DesignProperties =
       End
    End
 End
-', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'ViewuUnusedTerminalsForMoreThan14Days';
-GO
-
-EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 1, @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'ViewuUnusedTerminalsForMoreThan14Days';
+', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'DEL_ViewuUnusedTerminalsForMoreThan14Days';
 GO
 

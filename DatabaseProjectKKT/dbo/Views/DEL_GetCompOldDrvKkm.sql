@@ -1,16 +1,10 @@
-CREATE VIEW dbo.GetCompOldDrvKkm
+CREATE VIEW dbo.[DEL_GetCompOldDrvKkm]
 AS
-SELECT        TOP (100) PERCENT NumOP, ComputerName, shtrihDrvVer
-FROM            dbo.GetKkmList
-WHERE        (LEFT(shtrihDrvVer, 1) <> 5) AND (FnID IS NOT NULL)
-GROUP BY NumOP, ComputerName, shtrihDrvVer
+SELECT        TOP (100) PERCENT NumOP, ComputerName, ShtrihDrvVer
+FROM            dbo.ViewKkmList
+WHERE        (LEFT(ShtrihDrvVer, 1) <> 5) AND (FnID IS NOT NULL)
+GROUP BY NumOP, ComputerName, ShtrihDrvVer
 ORDER BY NumOP, ComputerName
-
-GO
-
-EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 1, @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'GetCompOldDrvKkm';
-
-
 GO
 
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane1', @value = N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]
@@ -84,12 +78,12 @@ Begin DesignProperties =
          Left = 0
       End
       Begin Tables = 
-         Begin Table = "GetKkmList"
+         Begin Table = "ViewKkmList"
             Begin Extent = 
                Top = 6
                Left = 38
                Bottom = 136
-               Right = 266
+               Right = 270
             End
             DisplayFlags = 280
             TopColumn = 0
@@ -120,8 +114,9 @@ Begin DesignProperties =
       End
    End
 End
-', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'GetCompOldDrvKkm';
+', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'DEL_GetCompOldDrvKkm';
+GO
 
-
+EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 1, @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'DEL_GetCompOldDrvKkm';
 GO
 

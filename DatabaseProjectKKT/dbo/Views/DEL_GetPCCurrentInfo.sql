@@ -1,4 +1,4 @@
-CREATE VIEW [dbo].[GetPCCurrentInfo]
+CREATE VIEW [dbo].[DEL_GetPCCurrentInfo]
 AS
 SELECT        o.NumOP, pc.ID, pc.IP, pc.MAC, s.Name, os.Hostname, os.OS, os.Arch, os.Version, os.Serial_number, os.Status, os.Install_date, os.lastBootTime, h.CPU1, h.CPU2, icpu.Cores, icpu.Threads, h.RAM, h.RAM_total_size, 
                          bb.Manufacturer AS bb_Manufacturer, bb.Product AS bb_product, bb.Serial_number AS bb_SN, bb.Version AS bb_version, m.Manufacturer, m.Model, m.Bios_SN, m.Update_Date, CAST(CASE WHEN Comments.RID IS NOT NULL 
@@ -40,7 +40,6 @@ FROM            dbo.PC_Info AS pc LEFT OUTER JOIN
 WHERE        (s.ID IN (1))
 GROUP BY o.NumOP, pc.ID, pc.IP, pc.MAC, s.Name, os.Hostname, os.OS, os.Arch, os.Version, os.Serial_number, os.Status, os.Install_date, os.lastBootTime, h.CPU1, h.CPU2, h.RAM, h.RAM_total_size, bb.Manufacturer, bb.Product, 
                          bb.Serial_number, bb.Version, m.Manufacturer, m.Model, m.Bios_SN, m.Update_Date, icpu.Cores, icpu.Threads, CAST(CASE WHEN Comments.RID IS NOT NULL THEN 1 ELSE 0 END AS BIT)
-
 GO
 
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'
@@ -110,14 +109,7 @@ EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane2', @value = N'
       End
    End
 End
-', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'GetPCCurrentInfo';
-
-
-GO
-
-EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 2, @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'GetPCCurrentInfo';
-
-
+', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'DEL_GetPCCurrentInfo';
 GO
 
 EXECUTE sp_addextendedproperty @name = N'MS_DiagramPane1', @value = N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]
@@ -260,8 +252,9 @@ Begin DesignProperties =
             End
             DisplayFlags = 280
             TopColumn = 0
-         End', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'GetPCCurrentInfo';
+         End', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'DEL_GetPCCurrentInfo';
+GO
 
-
+EXECUTE sp_addextendedproperty @name = N'MS_DiagramPaneCount', @value = 2, @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'VIEW', @level1name = N'DEL_GetPCCurrentInfo';
 GO
 

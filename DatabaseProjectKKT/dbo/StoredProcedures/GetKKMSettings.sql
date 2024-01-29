@@ -1,5 +1,3 @@
-
-
 CREATE procedure [dbo].[GetKKMSettings] (
 	   @Action nvarchar(MAX) = null OUTPUT 
 	  ,@snKKM nvarchar(MAX)
@@ -33,16 +31,16 @@ BEGIN
 			
 	--получаем ID ККМ
 
-	IF  (SELECT count(*) FROM GetKkmList WHERE KkmSn = @snKKM and KkmModelID = @KkmModelID and DateExpired = 
-		(select max(DateExpired) from  GetKkmList WHERE KkmSn = @snKKM and KkmModelID = @KkmModelID)) = 1
+	IF  (SELECT count(*) FROM ViewKkmList WHERE KkmSn = @snKKM and KkmModelID = @KkmModelID and DateExpired = 
+		(select max(DateExpired) from  ViewKkmList WHERE KkmSn = @snKKM and KkmModelID = @KkmModelID)) = 1
 		BEGIN
-			SET @KkmID = (SELECT KkmID FROM GetKkmList WHERE KkmSn = @snKKM and KkmModelID = @KkmModelID and DateExpired = 
-						 (select max(DateExpired) from  GetKkmList WHERE KkmSn = @snKKM and KkmModelID = @KkmModelID))
-			SET @FnID = (SELECT FnID FROM GetKkmList WHERE KkmSn = @snKKM and KkmModelID = @KkmModelID and FnID = 
-						 (select max(FnID) from  GetKkmList WHERE KkmSn = @snKKM and KkmModelID = @KkmModelID))
+			SET @KkmID = (SELECT KkmID FROM ViewKkmList WHERE KkmSn = @snKKM and KkmModelID = @KkmModelID and DateExpired = 
+						 (select max(DateExpired) from  ViewKkmList WHERE KkmSn = @snKKM and KkmModelID = @KkmModelID))
+			SET @FnID = (SELECT FnID FROM ViewKkmList WHERE KkmSn = @snKKM and KkmModelID = @KkmModelID and FnID = 
+						 (select max(FnID) from  ViewKkmList WHERE KkmSn = @snKKM and KkmModelID = @KkmModelID))
 		END
-	ELSE IF (SELECT count(*) FROM GetKkmList WHERE KkmSn = @snKKM and KkmModelID = @KkmModelID and DateExpired =
-			(select max(DateExpired) from  GetKkmList WHERE KkmSn = @snKKM and KkmModelID = @KkmModelID)) > 1
+	ELSE IF (SELECT count(*) FROM ViewKkmList WHERE KkmSn = @snKKM and KkmModelID = @KkmModelID and DateExpired =
+			(select max(DateExpired) from  ViewKkmList WHERE KkmSn = @snKKM and KkmModelID = @KkmModelID)) > 1
 		BEGIN
 			SET @Action = ISNULL(@Action,'') + 'Найдено несколько ККМ ' + @modelKKM + ' № ' + @snKKM + '. Продолжение невозможно. '
 			RETURN 1
@@ -55,11 +53,11 @@ BEGIN
 
 	-- получаем все необходимые данные
 			
-	SET @OrgID		= isnull((SELECT TOP(1) OrgID		FROM GetKkmList WHERE KkmID = @KkmID),0)
-	SET @KkmFFD		= isnull((SELECT KkmFFD				FROM GetKkmList WHERE KkmID = @KkmID and FnId = @FnID),0)
-	SET @WorkMode	= isnull((SELECT TOP(1) WorkMode	FROM GetKkmList WHERE KkmID = @KkmID),99)					-- если настройки в базе нет, будем возвращать 99
-	SET @CompID		= isnull((SELECT TOP(1) CompID		FROM GetKkmList WHERE KkmID = @KkmID),0)
-	SET @FnModelID	= isnull((SELECT fnModelID			FROM GetKkmList Where KkmID = @KkmID and FnId = @FnID),0)
+	SET @OrgID		= isnull((SELECT TOP(1) OrgID		FROM ViewKkmList WHERE KkmID = @KkmID),0)
+	SET @KkmFFD		= isnull((SELECT KkmFFD				FROM ViewKkmList WHERE KkmID = @KkmID and FnId = @FnID),0)
+	SET @WorkMode	= isnull((SELECT TOP(1) WorkMode	FROM ViewKkmList WHERE KkmID = @KkmID),99)					-- если настройки в базе нет, будем возвращать 99
+	SET @CompID		= isnull((SELECT TOP(1) CompID		FROM ViewKkmList WHERE KkmID = @KkmID),0)
+	SET @FnModelID	= isnull((SELECT fnModelID			FROM ViewKkmList Where KkmID = @KkmID and FnId = @FnID),0)
 
 	/*------------------------------------------------------------------------------------------------
 	получаем настройки для ККМ. 
