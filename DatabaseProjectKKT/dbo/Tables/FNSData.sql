@@ -13,7 +13,13 @@ CREATE TABLE [dbo].[FNSData] (
     [RegMode]     INT            NULL,
     [AddDate]     DATETIME       NOT NULL,
     [UpdateDate]  DATETIME       NOT NULL,
-    [CodeNo]      CHAR (4)       NULL
+    [CodeNo]      CHAR (4)       NULL,
+    [NumDev]      NVARCHAR (MAX) NULL,
+    CONSTRAINT [FK_FNSData_Adds] FOREIGN KEY ([AddsID]) REFERENCES [dbo].[Adds] ([RID]),
+    CONSTRAINT [FK_FNSData_Fn] FOREIGN KEY ([FnID]) REFERENCES [dbo].[Fn] ([RID]),
+    CONSTRAINT [FK_FNSData_Kkm] FOREIGN KEY ([KkmID]) REFERENCES [dbo].[Kkm] ([RID]),
+    CONSTRAINT [FK_FNSData_Org] FOREIGN KEY ([OfdOrgID]) REFERENCES [dbo].[Org] ([RID]),
+    CONSTRAINT [FK_FNSData_Org1] FOREIGN KEY ([OpID]) REFERENCES [dbo].[Org] ([RID])
 );
 GO
 
@@ -28,25 +34,5 @@ EXECUTE sp_addextendedproperty @name = N'MS_Description', @value = N'1 бит:	�
 9 бит:	ККТ используется при осуществлении деятельности платежного агента (субагента)	
 10 бит:	ККТ используется при продаже подакцизных товаров	
 11 бит:	ККТ используется при осуществлении расчетов за маркированные товары', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'TABLE', @level1name = N'FNSData', @level2type = N'COLUMN', @level2name = N'RegMode';
-GO
-
-ALTER TABLE [dbo].[FNSData]
-    ADD CONSTRAINT [FK_FNSData_Org] FOREIGN KEY ([OfdOrgID]) REFERENCES [dbo].[Org] ([RID]);
-GO
-
-ALTER TABLE [dbo].[FNSData]
-    ADD CONSTRAINT [FK_FNSData_Fn] FOREIGN KEY ([FnID]) REFERENCES [dbo].[Fn] ([RID]);
-GO
-
-ALTER TABLE [dbo].[FNSData]
-    ADD CONSTRAINT [FK_FNSData_Adds] FOREIGN KEY ([AddsID]) REFERENCES [dbo].[Adds] ([RID]);
-GO
-
-ALTER TABLE [dbo].[FNSData]
-    ADD CONSTRAINT [FK_FNSData_Org1] FOREIGN KEY ([OpID]) REFERENCES [dbo].[Org] ([RID]);
-GO
-
-ALTER TABLE [dbo].[FNSData]
-    ADD CONSTRAINT [FK_FNSData_Kkm] FOREIGN KEY ([KkmID]) REFERENCES [dbo].[Kkm] ([RID]);
 GO
 
