@@ -42,13 +42,16 @@ BEGIN
 		END
 	-- Собираем данные 
 	SET @KkmID = (select RID from Kkm where sn = @KkmSn and ModelID = (select RID from KkmModel where KkmModel.Name = @KkmModel))
-	IF @KkmID is null
+	
+    IF @KkmID is null
 		BEGIN
 			SET @Action = 'Не найден ККМ ' + @KkmModel + ' №' + RTRIM(@KkmSn) + ', сначала добавьте ККМ'
 			RETURN -1
 		END
-	EXEC AddFn @snFN = @FnSn, @SnKkm = @KkmSn,  @ModelKkm = @KkmModel, @Source = "Добавлен при обработке РНМ", @snFnID = @FnID output, @Action = @Action output
-
+	
+    EXEC AddFn @snFN = @FnSn, @SnKkm = @KkmSn,  @ModelKkm = @KkmModel, @Source = "Добавлен при обработке РНМ", @snFnID = @FnID output, @Action = @Action output
+    Set @Action = null
+    
 	IF @Adds is not null
 		EXEC GetAddsID @adds = @adds, @AddsID = @AddsID OUTPUT
 	
@@ -81,10 +84,12 @@ BEGIN
 					[DateExpired]	= @DateExpired,
 					[Status]		= @Status,
 					[OfdOrgID]		= @OfdOrgID,
-					[OpID]			= @OpId,
+					[FnID]          = @FnID,
+                    [OpID]			= @OpId,
 					[PlaceName]		= @PlaceName,
 					[RegMode]		= @RegMode,
-					[UpdateDate]	= GetDate()
+					[UpdateDate]	= GetDate(),
+					[NumDev] 		= @NumDev
 			WHERE	[RNM] = @RNM AND [KkmID] = @KkmID AND [DateReg] = @DateReg
 			
 			IF @@ROWCOUNT = 0 

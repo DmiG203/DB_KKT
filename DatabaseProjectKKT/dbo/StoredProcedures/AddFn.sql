@@ -63,10 +63,11 @@ Begin
 
 	-- Получаем @KkmID. Если в этот момент не определён @ModelKkmID, KkmID мы так же не получем и запишем null
 	Set @KkmID =  (Select rid from KKM where sn =  @SnKkm and kkm.modelID = @ModelKkmID);
+
 	-- Если не определили KkmID, но есть RMN, пробуем получить ККМ через него
 	If @RNM is not null and @KkmID is null
-		SET @KkmID = (Select KkmID from FNSData where RNM = @RNM)
-
+		SET @KkmID = (Select KkmID from FNSData where RNM = @RNM and DateExpired is not null )
+  
 	If @snFnID is null
 		Begin
 			Insert Into fn ([sn],[modelId],[kktID],[UpdateDate],[AddDate],[Source],[STATUS],[DateExpired],[FreeReg],[LastDocNum],[LastDocDate], [Deleted]) Values (@snFN,@ModelID,@KkmID,GETDATE(),GETDATE(),@Source,@Status,@FNexpired,@FreeReg,@LastDocNum,@LastDocDate,@FnDeleted);

@@ -1,6 +1,9 @@
 CREATE TABLE [dbo].[Org_City] (
-    [RID]  INT           IDENTITY (1, 1) NOT NULL,
-    [City] NVARCHAR (50) NOT NULL
+    [RID]      INT           IDENTITY (1, 1) NOT NULL,
+    [City]     NVARCHAR (50) NOT NULL,
+    [TimeZone] INT           NULL,
+    CONSTRAINT [PK_Org_City] PRIMARY KEY CLUSTERED ([RID] ASC),
+    CONSTRAINT [FK_Org_City_Org_City] FOREIGN KEY ([RID]) REFERENCES [dbo].[Org_City] ([RID])
 );
 GO
 
