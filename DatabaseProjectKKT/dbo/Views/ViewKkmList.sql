@@ -19,7 +19,7 @@ SELECT        dbo.Org.RID AS OrgID, dbo.Org.NumOP, dbo.Computers.RID AS CompID, 
                          dbo.KkmNotUse.Comment AS CommentBlock, fns.RID AS FnsID, fns.RNM, fns.Status AS FnsStatus, fns.RegMode, CAST((Case WHEN fns.FnID = fn.rid Then 0 Else 1 End) as bit) as NeedReReg
 FROM            dbo.Kkm LEFT OUTER JOIN
                          dbo.KkmModel ON dbo.Kkm.ModelID = dbo.KkmModel.RID LEFT OUTER JOIN
-                         dbo.Fn ON dbo.Kkm.RID = dbo.Fn.KktID AND dbo.Fn.Status < 2 AND dbo.Fn.Deleted = 0 AND dbo.Fn.AddDate = (select MAX(Fn2.AddDate) from dbo.Fn Fn2 where Fn2.KktID = dbo.Kkm.Rid)
+                         dbo.Fn ON dbo.Kkm.RID = dbo.Fn.KktID AND dbo.Fn.Status < 2 AND dbo.Fn.Deleted = 0 AND dbo.Fn.AddDate = (select MAX(Fn2.AddDate) from dbo.Fn Fn2 where Fn2.KktID = dbo.Kkm.Rid and Fn2.Status < 2)
                          LEFT OUTER JOIN
                          dbo.RepReg ON dbo.RepReg.FnID = dbo.Fn.RID AND dbo.RepReg.RID =
                              (SELECT        MAX(RID) AS Expr1
